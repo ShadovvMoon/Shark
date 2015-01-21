@@ -1,0 +1,31 @@
+{
+    "name": "Shark",
+    "version": "1.0.0",
+    "description": "An interactive tool to help mark assignments for a course I tutor at the University of Queensland",
+    "dependencies": {
+        "express": "*",
+        "bcrypt-nodejs": "*",
+        "body-parser": "*",
+        "ejs": "*",
+        "express-session": "*",
+        "jszip": "*",
+        "method-override": "*",
+        "ministore": "*",
+        "node-zip": "*",
+        "passport": "*",
+        "passport-local": "*",
+        "passport-strategy": "*",
+        "python-shell": "*",
+        "unzip": "*",
+        "openurl": "*",
+        "ws": "*"
+    },
+    "author": {
+        "name": "Samuel Colbran",
+        "email": "contact@samuco.net"
+    },
+    "engines": {
+        "node": "0.10.x",
+        "npm": "1.4.x"
+    }
+}

@@ -1,0 +1,162 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Lab Server - Login</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
+    <link rel="stylesheet" href="css/mark.css">
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="main-icon" src="images/shark-icon.png"/><span class="main-brand">Shark</span></a>
+        </div>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" onClick="save()" id="save"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save</a></li>
+    </ul>
+</nav>
+
+
+<div class="row">
+    <div class="checkbox-view col-md-6">
+        <table class="table script_table">
+            <thead class="root_head">
+            <tr>
+                <td></td>
+                <td width="250px">Criteria</td>
+                <td>Weight</td>
+                <td>Marks</td>
+                <td>Comments</td>
+            </tr>
+            </thead>
+
+
+<%
+var script_source = global_script['source'];
+var json = JSON.stringify(global_criteria);
+
+function childIdentifier(child) {
+    var identifier = child['id'];
+    if (typeof identifier === 'undefined') {
+        identifier = "row_" + child["criteria"];
+    }
+    return identifier;
+}
+
+// Generate the criteria
+function generateChildren(children, savefile, level) {
+    if (typeof children === 'undefined') return;
+    for (var i = 0; i < children.length; i++) {
+
+        // Extract the child information
+        var child       = children[i];
+        var name        = child['criteria'];
+        var weight      = child['weight'];
+        var subchildren = child['children'];
+        var unticked    = child['false'] || "";
+
+        var marks = 0.0;
+
+        // Does this child rely on others being ticked?
+        if (typeof child['requires'] !== 'undefined' && child['requires'].length > 0) {
+            unticked = "";
+        }
+
+        // Compute the unique identifier
+        var identifier = childIdentifier(child);
+
+        // Load any saved settings
+        var checked = "";
+        if (typeof savefile !== 'undefined' && typeof subchildren === 'undefined') {
+            var save = savefile[identifier];
+            if (typeof save !== "undefined") {
+                unticked = save['value'];
+                checked = (save['checked'] == 'true') ? "checked" : "";
+            }
+        }
+
+        var tr_class = "row_cat"+level;
+        %>
+            <tr class="<%=tr_class%>">
+                <td>
+                    <%
+                    if (typeof subchildren === 'undefined') {
+                        %><input id="<%=identifier%>" type="checkbox" <%=checked%>/><%
+                    }
+                    %>
+                </td>
+                <td class="cell_label"><%=name%></td>
+                <td><%=weight%></td>
+                <td id="<%=identifier%>_marks"><%=marks%></td>
+                <td>
+                    <%
+                        if (typeof subchildren === 'undefined') {
+                            %><textarea id="<%=identifier%>_textarea" rows="1"><%=unticked%></textarea><%
+                        }
+                     %>
+                </td>
+            </tr>
+        <%
+
+        // Render sub-children
+        generateChildren(subchildren, savefile, level+1);
+    }
+}
+generateChildren(global_criteria, global_savefile, 0);
+%>
+
+        </table>
+
+    </div>
+    <div class="col-md-6">
+        <div id="editor"><%=script_source%>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+var criteria = <%- json %>;
+var script = "<%=global_query.script%>";
+var prac = "<%=global_query.prac%>";
+</script>
+
+<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/xcode");
+    editor.getSession().setMode("ace/mode/python");
+</script>
+
+<!-- JavaScript -->
+<script src="js/jquery-1.10.2.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/edit.js"></script>
+
+<!-- Resizing TextAreas -->
+<script type="text/javascript">
+    function h(e) {
+        $(e).css({'height':'auto','overflow-y':'hidden'}).height(e.scrollHeight);
+    }
+    $('textarea').each(function () {
+        h(this);
+    }).on('input', function () {
+        h(this);
+    });
+</script>
+
+</body>
+</html>

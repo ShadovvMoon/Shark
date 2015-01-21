@@ -1,0 +1,132 @@
+[
+    {
+        "criteria": "Graphical User Interface",
+        "weight": 6,
+        "children" : [
+            {
+                "criteria" : "Layout",
+                "weight" : 1,
+                "children" : [
+                    {
+                        "criteria" : "Gui layout is correct",
+                        "weight" : 0.5,
+                        "false" : "The GUI layout does not match the provided screenshots"
+                    },
+                    {
+                        "criteria" : "Canvas resizes",
+                        "weight" : 0.25,
+                        "false" : "The canvas does not resize correctly"
+                    },
+                    {
+                        "criteria" : "Controls resize",
+                        "weight" : 0.25,
+                        "false" : "The controls do not resize correctly"
+                    }
+                ]
+            },
+            {
+                "criteria" : "Plotting",
+                "weight" : 1.5,
+                "children" : [
+                    {
+                        "id" : "sunlight",
+                        "criteria" : "Sunlight is drawn",
+                        "weight" : 0.3,
+                        "false" : "Sunlight data is not drawn correctly"
+                    },
+                    {
+                        "criteria": "    in orange",
+                        "weight": 0.1,
+                        "false": "Your sunlight graph is not drawn in orange",
+                        "requires" : ["sunlight"]
+                    },
+                    {
+                        "id" : "temperature",
+                        "criteria" : "Temperature is drawn",
+                        "weight" : 0.3,
+                        "false" : "Temperature data is not drawn correctly"
+                    },
+                    {
+                        "criteria": "    in red",
+                        "weight": 0.1,
+                        "false": "Your temperature graph is not drawn in red",
+                        "requires" : ["temperature"]
+                    },
+                    {
+                        "id" : "power",
+                        "criteria" : "Power is drawn",
+                        "weight" : 0.3,
+                        "false" : "Power data is not drawn correctly"
+                    },
+                    {
+                        "criteria": "    in pink",
+                        "weight": 0.1,
+                        "false": "Your power graph is not drawn in pink",
+                        "requires" : ["power"]
+                    },
+                    {
+                        "criteria": "    using a polygon",
+                        "weight": 0.3,
+                        "false": "Your power graph is not using a polygon",
+                        "requires" : ["power"]
+                    }
+                ]
+            },
+            {
+                "criteria" : "Events",
+                "weight" : 1.5,
+                "children" : [
+                    {
+                        "criteria" : "checkboxes show/hide the plot",
+                        "weight" : 0.75,
+                        "children" : [
+                            {
+                                "criteria": "power",
+                                "weight": 0.25,
+                                "false": "The power checkbox doesn't work"
+                            },
+                            {
+                                "criteria": "temperature",
+                                "weight": 0.25,
+                                "false": "The temperature checkbox doesn't work"
+                            },
+                            {
+                                "criteria": "sunlight",
+                                "weight": 0.25,
+                                "false": "The sunlight checkbox doesn't work"
+                            }
+                        ]
+                    },
+                    {
+                        "criteria" : "apply button works",
+                        "weight" : 0.75,
+                        "children" : [
+                            {
+                                "id": "apply",
+                                "criteria": "changes data",
+                                "weight": 0.25,
+                                "false": "The apply button doesn't work"
+                            },
+                            {
+                                "criteria": "shows an invalid date box",
+                                "weight": 0.25,
+                                "false": "An invalid date error box is not shown when the date is invalid",
+                                "requires" : ["apply"]
+                            }
+                        ]
+                    },
+                    {
+                        "criteria": "checkboxes are linked",
+                        "weight": -0.25,
+                        "true": "Multiple checkboxes share the same variable"
+                    },
+                    {
+                        "criteria": "x doesn't close the program",
+                        "weight": -0.25,
+                        "true": "The red [x] doesn't close the program"
+                    }
+                ]
+            }
+        ]
+    }
+]

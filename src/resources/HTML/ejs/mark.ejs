@@ -1,0 +1,146 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Lab Server - Login</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
+    <link rel="stylesheet" href="css/mark.css">
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><img class="main-icon" src="images/shark-icon.png"/><span class="main-brand">Shark</span></a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onClick="save()" id="save"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Export</a></li>
+        </ul>
+    </div>
+</nav>
+
+<%
+// Add each of the practicals rows
+for (var i = 0; i < global_prac.length; i++) {
+    var prac_name = global_prac[i].name;
+%>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><%=prac_name%></h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <td width="110px">
+                    <a href="/?sort=number">
+                        <% if (global_query['sort'] == "number") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Number
+                    </a>
+                </td>
+                <td>
+                    <a href="/?sort=name">
+                        <% if (global_query['sort'] == "name") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Name
+                    </a>
+                </td>
+                <td width="110px">
+                    <a href="/?sort=status">
+                        <% if (global_query['sort'] == "status") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Status
+                    </a>
+                </td>
+                <td width="110px">
+                    <a href="/?sort=marks">
+                        <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Marks
+                    </a>
+                </td>
+            </tr>
+            </thead>
+<%
+
+    // Add each of the scripts
+    var scripts = global_prac[i]['scripts'];
+
+    // Sort scripts
+    switch (global_query['sort']) {
+        case "marks":
+            scripts.sort(function(a, b){
+                return a.mark - b.mark;
+            })
+            break;
+        case "number":
+            scripts.sort(function(a, b){
+                return a.name.localeCompare(b.name);
+            })
+            break;
+        case "name":
+            scripts.sort(function(a, b){
+                return a.student.localeCompare(b.student);
+            })
+            break;
+        case "status":
+            scripts.sort(function(a, b){
+                return a.modified - b.modified;
+            })
+            break;
+        default:
+            break;
+    }
+
+    // Render scripts
+    for (var s = 0; s < scripts.length; s++) {
+        var script_name = scripts[s].name;
+        var student_name = scripts[s].student;
+        var modified = scripts[s].modified;
+        var mark = scripts[s].mark;
+
+        var tr_class = ""
+        if (modified) {
+            if (mark == 0.0) tr_class = "danger";
+            else tr_class = "warning";
+        }
+        %>
+            <tr class="<%=tr_class%>">
+                <td>
+                    <a href="/edit?prac=<%=prac_name%>&script=<%=script_name%>"><%= script_name %></a>
+                </td>
+                <td>
+                    <%=student_name%>
+                </td>
+        <%if (modified) {%>
+                <td>
+                    Marked
+                </td>
+                <td>
+                    <%=mark%>
+                </td>
+        <%}%>
+            </tr>
+        <%
+    }
+%>
+        </table>
+    </div>
+</div>
+<%
+}
+%>
+
+<!-- JavaScript -->
+<script src="js/jquery-1.10.2.js"></script>
+<script src="js/bootstrap.js"></script>
+</body>
+</html>
