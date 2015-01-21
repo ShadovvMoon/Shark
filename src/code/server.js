@@ -19,7 +19,7 @@ ejs     = require('ejs');
 function render(req, res, html, options) {
     try {
         options = (typeof options !== 'undefined') ? options : {};
-        var compiled = ejs.compile(html, { filename: path.join(process.cwd(), './server/file.ejs')});
+        var compiled = ejs.compile(html, { filename: path.join(process.cwd(), './src/plugins/file.ejs')});
         html = compiled(options);
         res.send(html);
     } catch (err) {
@@ -33,8 +33,7 @@ module.exports.render = render;
  * @param callback
  */
 function setupPlugins(callback) {
-    var pluginDir = "./server/";
-    fs.readdir(pluginDir, function(err, files) {
+    fs.readdir(config.plugins, function(err, files) {
         if (err) {
             return console.error(err);
         }
@@ -47,7 +46,7 @@ function setupPlugins(callback) {
             // What type of file is this?
             if (path.extname(files[i]) == '.js') { // Plugin
 
-                var plugin = require(pluginDir + files[i]);
+                var plugin = require(config.plugins + files[i]);
                 plugin(module.exports, app, function (err) {
                     if (err) {
                         return callback(err);
@@ -88,7 +87,7 @@ function configure(callback) {
 
     // Start the express server
     app.set('port', config.port);
-    app.use(express.static(path.join(process.cwd() , './server/public')));
+    app.use(express.static(path.join(process.cwd() , config.publicPath)));
 
     // Load middleware
     app.use(methodOverride());

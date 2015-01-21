@@ -6,8 +6,8 @@
  */
 
 var ejs = require('ejs');
-var serverPlugins = [require('./plugins/scripts.js'),
-					 require('./plugins/edit.js')];
+var serverPlugins = [require('../plugins/scripts.js'),
+					 require('../plugins/edit.js')];
 
 /**
  *
@@ -30,7 +30,7 @@ module.exports.render = render;
 
 function appSimulator() {
 	var simulator = this;
-	simulator._static = path.join(process.cwd() , './Resources/HTML/public');
+	simulator._static = path.join(process.cwd() , config.publicPath);
 	simulator._routes = {};
 	simulator.route = function(name) {
 		if (name.indexOf("/") != 0) {

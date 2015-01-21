@@ -25,9 +25,8 @@
  */
 
 fs = require('fs');
-config = require('../../config.js');
 passport = require('passport');
-criteria_util = require('../criteria.js');
+criteria_util = require('../code/criteria.js');
 
 /**
  *

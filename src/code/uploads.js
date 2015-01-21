@@ -5,7 +5,6 @@
  *
  */
 
-config  = require('../config');
 fs      = require('fs');
 path    = require('path');
 unzip   = require('unzip'); //disable for nexe

@@ -6,12 +6,14 @@
  */
 
 var config = {}
+path = require("path");
 
 //---------------------------
 // General
 //---------------------------
 // Express
 config.port = 3000;
+config.plugins = path.join(process.cwd(), './src/plugins/');
 
 //---------------------------
 // Shark
@@ -21,10 +23,13 @@ config.skipAuth = true;
 config.skipUser = "admin";
 
 // Directory locations
-config.pythonDirectory   = "../python";
+config.pythonDirectory   = "./db";
 config.uploadDirectory   = config.pythonDirectory + "/upload";
 config.downloadDirectory = config.pythonDirectory + "/download";
 config.markingDirectory  = config.pythonDirectory + "/marking";
+config.ejsPath 			 = "./src/resources/HTML/ejs";
+config.criteriaPath      = "./src/resources/criteria.json";
+config.publicPath      	 = "./src/resources/HTML/public";
 
 //---------------------------
 // MyPyTutor
