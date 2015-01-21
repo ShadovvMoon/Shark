@@ -43,7 +43,7 @@ module.exports.start = function() {
 	
 	        console.log("Starting server...");
 	        server.start(function() {
-	
+				require("openurl").open("http://localhost:"+ config.port +"/");
 	        });
 	    });
 	});

@@ -8,18 +8,16 @@
 var config = {}
 path = require("path");
 
-//---------------------------
 // General
 //---------------------------
 // Express
 config.port = 3000;
 config.plugins = path.join(process.cwd(), './src/plugins/');
 
-//---------------------------
 // Shark
 //---------------------------
 // Authentication
-config.skipAuth = true;
+config.skipAuth = false;
 config.skipUser = "admin";
 
 // Directory locations
@@ -27,11 +25,10 @@ config.pythonDirectory   = "./db";
 config.uploadDirectory   = config.pythonDirectory + "/upload";
 config.downloadDirectory = config.pythonDirectory + "/download";
 config.markingDirectory  = config.pythonDirectory + "/marking";
-config.ejsPath 			 = "./src/resources/HTML/ejs";
+config.ejsPath           = "./src/resources/HTML/ejs";
 config.criteriaPath      = "./src/resources/criteria.json";
-config.publicPath      	 = "./src/resources/HTML/public";
+config.publicPath        = "./src/resources/HTML/public";
 
-//---------------------------
 // MyPyTutor
 //---------------------------
 // Directory locations
@@ -41,9 +38,9 @@ config.saveDirectory   = "../MyPyTutor/CSSE1001Solutions";
 config.tmpDirectory    = "../MyPyTutor/tmp";
 config.tmpScript       = "script.py";
 config.tutorLib        = "../MyPyTutor/code";
-config.tutorLaunch 	   = "MyPyTutor.py";
+config.tutorLaunch     = "MyPyTutor.py";
 
-// Express
+// Sockets
 config.socketPort = 3333;
 //---------------------------
 

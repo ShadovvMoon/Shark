@@ -5,7 +5,7 @@
  *
  */
 
-config  = require('../config.js');
+config  = require('../../config.js');
 path    = require('path');
 http    = require('http');
 fs      = require('fs');
@@ -16,14 +16,15 @@ console.log("Shark is... alive!");
 
 // Configure the server
 console.log("Configuring server...");
-server.configure(function(err) {
-    if (err) {
-        return console.error(err);
-    }
-
-	var port = 3000;
-    console.log("Starting server...");
-    server.start(port, function() {
-		require("openurl").open("http://localhost:3000/");
-    });
-});
+module.exports.start = function() {
+	server.configure(function(err) {
+	    if (err) {
+	        return console.error(err);
+	    }
+	
+	    console.log("Starting server...");
+	    server.start(config.port, function() {
+			require("openurl").open("http://localhost:"+ config.port +"/");
+	    });
+	});
+}
