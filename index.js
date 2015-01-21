@@ -4,3 +4,5 @@
  * All rights reserved.
  *
  */
+
+require("./src/code/index.js").start();

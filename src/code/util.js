@@ -1,3 +1,10 @@
+/*
+ *
+ * Copyright (c) 2015, Samuel Colbran <contact@samuco.net>
+ * All rights reserved.
+ *
+ */
+
 module.exports.asyncLoop = function(iterations, func, callback) {
     var index = 0;
     var done = false;

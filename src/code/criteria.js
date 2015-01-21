@@ -1,3 +1,10 @@
+/*
+ *
+ * Copyright (c) 2015, Samuel Colbran <contact@samuco.net>
+ * All rights reserved.
+ *
+ */
+
 var criteria_util = module.exports;
 
 // Server/client side functions
