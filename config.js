@@ -17,7 +17,7 @@ config.plugins = path.join(process.cwd(), './src/plugins/');
 // Shark
 //---------------------------
 // Authentication
-config.skipAuth = false;
+config.skipAuth = true;
 config.skipUser = "admin";
 
 // Directory locations

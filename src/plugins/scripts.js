@@ -182,28 +182,37 @@ module.exports = function(server, app, callback) {
                     return next(err);
                 }
 
-                function generateScripts(scriptDir) {
-                    fs.readdir(scriptDir, function (err, files) {
-                        if (err) return next(err);
 
-                        // Gather information about each prac
-                        nextPractical(0, {
-                            scripts: scriptDir,
-                            files: files,
-                            output: [],
-                            criteria: criteria,
-                            callback: function (err, pracInfo) {
-                                if (err) return console.error(err);
-                                return server.render(req, res, html, {
-                                    global_user: (config.skipAuth?config.skipUser:req.user.username),
-                                    global_prac: pracInfo,
-                                    global_query: req.query
-                                });
-                            }
+                // Do we have any scripts?
+                var userDir = path.join(config.markingDirectory, (config.skipAuth?config.skipUser:req.user.username));
+                fs.exists(userDir, function(exists) {
+                    if (!exists) {
+                        return res.redirect('/import');
+                    }
+
+                    function generateScripts(scriptDir) {
+                        fs.readdir(scriptDir, function (err, files) {
+                            if (err) return next(err);
+
+                            // Gather information about each prac
+                            nextPractical(0, {
+                                scripts: scriptDir,
+                                files: files,
+                                output: [],
+                                criteria: criteria,
+                                callback: function (err, pracInfo) {
+                                    if (err) return console.error(err);
+                                    return server.render(req, res, html, {
+                                        global_user: (config.skipAuth?config.skipUser:req.user.username),
+                                        global_prac: pracInfo,
+                                        global_query: req.query
+                                    });
+                                }
+                            });
                         });
-                    });
-                }
-                generateScripts(path.join(config.markingDirectory, (config.skipAuth?config.skipUser:req.user.username)));
+                    }
+                    generateScripts(userDir);
+                });
             });
         });
         callback();
