@@ -8,7 +8,7 @@
 var db_module = module.exports;
 
 //Internal variables.
-db_module._root_database = require('ministore')('db');
+db_module._root_database = require('../mods/ministore/ministore.js')('db');
 db_module._databases = {};
 
 /**

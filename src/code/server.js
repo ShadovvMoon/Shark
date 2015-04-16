@@ -8,6 +8,8 @@
 express = require('express');
 app     = express();
 ejs     = require('ejs');
+uploads = require("./uploads");
+auth    = require("./auth");
 
 /**
  *
@@ -78,6 +80,7 @@ function setupPlugins(callback) {
 // Middleware
 var methodOverride = require('method-override');
 var bodyParser     = require('body-parser')
+var multer  	   = require('multer');
 
 /**
  *
@@ -106,6 +109,20 @@ function configure(callback) {
     	app.use(passport.initialize());
    	 	app.use(passport.session());
 	}
+
+	// Multer
+	app.use(multer({ dest: config.uploadDirectory,
+		rename: function (fieldname, filename) {
+	    	return filename;
+	  	},
+		onFileUploadStart: function (file) {
+	  		console.log(file.originalname + ' is starting ...')
+		},
+		onFileUploadComplete: function (file) {
+	  		console.log(file.fieldname + ' uploaded to  ' + file.path)
+			done = true;
+		}
+	}));
 
     // Load plugins
     setupPlugins(function(err) {

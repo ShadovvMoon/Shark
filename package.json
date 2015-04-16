@@ -10,7 +10,6 @@
         "express-session": "*",
         "jszip": "*",
         "method-override": "*",
-        "ministore": "*",
         "node-zip": "*",
         "passport": "*",
         "passport-local": "*",
@@ -18,7 +17,8 @@
         "python-shell": "*",
         "unzip": "*",
         "openurl": "*",
-        "ws": "*"
+        "ws": "*",
+         "multer": "~0.1.6"
     },
     "author": {
         "name": "Samuel Colbran",

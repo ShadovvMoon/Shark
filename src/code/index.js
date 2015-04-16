@@ -33,7 +33,7 @@ module.exports.start = function() {
 	
 	    // Configure authentication
 	    auth.setup();
-	
+
 	    // Configure the express server
 	    console.log("Configuring server...");
 	    server.configure(function(err) {

@@ -100,8 +100,33 @@ function setupPassport() {
 /**
  *
  */
+
+//TODO: Make Asyncronous
+function setupNoAuth() {
+	if (config.skipAuth) { // Figure out the user based on folders in the marking directory
+		fs.readdir(config.markingDirectory, function(err, files) {
+        	if (err) {
+        	    return console.error(err);
+        	}
+			
+			var i = 0;
+			for (i = 0; i < files.length; i++) {
+				if (fs.statSync(path.join(config.markingDirectory, files[i])).isDirectory()) {
+					config.skipUser = files[i];
+					return;
+				}
+			}
+		});
+	}
+}
+
+/**
+ *
+ */
 function setup() {
     setupPassport();
     setupDatabase();
+	setupNoAuth();
 }
+module.exports.setupNoAuth = setupNoAuth;
 module.exports.setup = setup;

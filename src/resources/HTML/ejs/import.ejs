@@ -11,10 +11,18 @@
     <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
   </head>
   <body>
-	<div align="center">
+	<div align="left" style="width:290; margin-left:auto; margin-right:auto">
 		<h1>Import Scripts <small></small></h1>
-		<p>You will be able to upload a zip file here once this page is finished.</p>
-		<p>For now, just drag the practical folders containing the scripts (eg, P02) into the <code>./db/marking/admin/</code> directory. Then <a href="/">click here</a></p>
+
+    	<form id       =  "uploadForm"
+		     enctype   =  "multipart/form-data"
+		     action    =  "/api/import"
+		     method    =  "post">
+			<p class="help-block">Select your assignments zip file (eg <code>SC.zip</code>)</p>
+			<input type="file" name="scripts" style="" /><br/>
+			
+			<input type="submit" value="Import" class="btn btn-success"/>
+		</form>
 	</div><!-- /#container -->
 	<script>document.getElementById('username-field').focus();</script>
 

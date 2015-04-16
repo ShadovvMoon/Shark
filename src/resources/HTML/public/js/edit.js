@@ -196,8 +196,6 @@ $(document).ready(function() {
         return total;
     }
 
-
-
     function computeComments(children) {
         var output = "";
         for (var i = 0; i < children.length; i++) {
@@ -220,7 +218,9 @@ $(document).ready(function() {
     }
 
     function updateComments() {
-        var output = computeComments(criteria);
+		var codeMark = updateMarks(criteria);
+		var output = " " + Math.ceil(codeMark) + "/10\n"
+        output += computeComments(criteria);
         var rangeStart = editor.find(/General comments:/,{
             regExp: true,
             preventScroll: true // do not change selection
@@ -231,7 +231,7 @@ $(document).ready(function() {
             preventScroll: true // do not change selection
         })
         rangeStart.end = rangeEnd.end;
-        editor.session.replace(rangeStart, "General comments:\n"+output+"\n----------------------------------------------");
+        editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
     }
 
     /**
@@ -292,7 +292,7 @@ $(document).ready(function() {
             updateChild(child);
 
             // Update the marks
-            updateMarks(criteria);
+            //updateMarks(criteria);
 
             // Update the code
             updateComments();
@@ -305,7 +305,7 @@ $(document).ready(function() {
     });
 
     // Update the marks
-    updateMarks(criteria);
+    //updateMarks(criteria);
 
     // Update the code
     updateComments();
