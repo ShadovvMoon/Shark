@@ -44,6 +44,7 @@ function getScriptInfo(script, criteria, callback) {
         // What is the name of this student?
         var name_regex = /Student Name:(.*)/
         var name_array = name_regex.exec(script_data);
+        var masters = script_data.indexOf("##### CSSE7030 #####") > -1;
         var student = "";
         if (name_array) {
             student = name_array[1].trim();
@@ -61,6 +62,7 @@ function getScriptInfo(script, criteria, callback) {
                 // Read the save file if it exists
                 callback(undefined, {
                     name: name,
+                    masters: masters,
                     student: student,
                     modified: exists,
                     mark: mark

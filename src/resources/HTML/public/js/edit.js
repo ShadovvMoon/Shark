@@ -1,3 +1,6 @@
+// Globals
+masters_student = false;
+
 // Criteria util
 
 /**
@@ -88,7 +91,9 @@ function exportChildren(children, output) {
     for (var i = 0; i < children.length; i++) {
         var child = children[i];
         var subchildren = child['children'];
-
+        if (!masters_student && child['masters'] == true) {
+            continue;
+        }
         if (typeof subchildren === 'undefined') {
             var id = childIdentifier(child);
             var textarea = document.getElementById(id + "_textarea");
@@ -150,6 +155,9 @@ function save() {
 
 $(document).ready(function() {
 
+    var code = editor.getSession().getValue();
+    masters_student = code.indexOf("##### CSSE7030 #####") > -1;
+
     /**
      *
      * @param children
@@ -176,6 +184,10 @@ $(document).ready(function() {
             var child = children[i];
             var id = childIdentifier(child);
 
+            if (!masters_student && child['masters'] == true) {
+                continue;
+            }
+
             // Calculate the subtotal
             var subtotal = 0.0;
             var subchildren = child['children'];
@@ -201,7 +213,9 @@ $(document).ready(function() {
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
             var subchildren = child['children'];
-
+            if (!masters_student && child['masters'] == true) {
+                continue;
+            }
             if (typeof subchildren !== 'undefined') {
                 output += computeComments(subchildren);
             } else {
@@ -219,6 +233,12 @@ $(document).ready(function() {
 
     function updateComments() {
 		var codeMark = updateMarks(criteria);
+
+        // Is this a masters student? Apply the formula
+        if (masters_student) {
+            codeMark = (codeMark / 13.0) * 10.0;
+        }
+
 		var output = " " + Math.ceil(codeMark) + "/10\n"
         output += computeComments(criteria);
         var rangeStart = editor.find(/General comments:/,{

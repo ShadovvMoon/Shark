@@ -104,6 +104,7 @@ for (var i = 0; i < global_prac.length; i++) {
     for (var s = 0; s < scripts.length; s++) {
         var script_name = scripts[s].name;
         var student_name = scripts[s].student;
+        var masters = scripts[s].masters;
         var modified = scripts[s].modified;
         var mark = scripts[s].mark;
 
@@ -118,7 +119,11 @@ for (var i = 0; i < global_prac.length; i++) {
                     <a href="/edit?prac=<%=prac_name%>&script=<%=script_name%>"><%= script_name %></a>
                 </td>
                 <td>
-                    <%=student_name%>
+                    <%if (masters) {%>
+                        <b><%=student_name%></b>
+                    <%} else {%>
+                        <%=student_name%>
+                    <%}%>
                 </td>
         <%if (modified) {%>
                 <td>

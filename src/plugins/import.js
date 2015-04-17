@@ -59,25 +59,25 @@ module.exports = function(server, app, callback) {
             });
         });
 
-		// Setup the upload page
-		app.post('/api/import',function(req,res){
-			if(done == true){
-				console.log(req.files);
-	
-				// Parse the upload directory
-				// Parse the uploads directory
-				console.log("Refreshing uploads...");
-				uploads.refresh(function(err) {
-				    if (err) {
-				        return console.error(err);
-				    }
-				    console.log("Refresh complete");
-					auth.setupNoAuth();
-					return res.redirect('/');
-				});
-			}
-		});
-		
+        // Setup the upload page
+        app.post('/api/import',function(req,res){
+            if(done == true){
+                console.log(req.files);
+
+                // Parse the upload directory
+                // Parse the uploads directory
+                console.log("Refreshing uploads...");
+                uploads.refresh(function(err) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    console.log("Refresh complete");
+                    auth.setupNoAuth();
+                    return res.redirect('/');
+                });
+            }
+        });
+
         callback();
     });
 }

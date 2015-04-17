@@ -57,6 +57,9 @@ function childIdentifier(child) {
     return identifier;
 }
 
+// Masters student?
+var script_masters = script_source.indexOf("##### CSSE7030 #####") > -1;
+
 // Generate the criteria
 function generateChildren(children, savefile, level) {
     if (typeof children === 'undefined') return;
@@ -65,11 +68,19 @@ function generateChildren(children, savefile, level) {
         // Extract the child information
         var child       = children[i];
         var name        = child['criteria'];
+
+        // Sanitise
+        name = name.replace(/<indent>/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+
         var weight      = child['weight'];
         var subchildren = child['children'];
         var unticked    = child['false'] || "";
-
+        var masters     = child['masters'] || false;
         var marks = 0.0;
+
+        if (!script_masters && masters) {
+            continue;
+        }
 
         // Does this child rely on others being ticked?
         if (typeof child['requires'] !== 'undefined' && child['requires'].length > 0) {
@@ -99,7 +110,7 @@ function generateChildren(children, savefile, level) {
                     }
                     %>
                 </td>
-                <td class="cell_label"><%=name%></td>
+                <td class="cell_label"><%-name%></td>
                 <td><%=weight%></td>
                 <td id="<%=identifier%>_marks"><%=marks%></td>
                 <td>
