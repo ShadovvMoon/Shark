@@ -132,7 +132,7 @@
                     {
                         "id" : "display_maxs_correct_temp",
                         "criteria" : "Displays correct temperatures",
-                        "weight" : 0.25,
+                        "weight" : 0.5,
                         "false" : "The display_maxs function doesn’t calculate maximum temperatures"
                     },
                     {
