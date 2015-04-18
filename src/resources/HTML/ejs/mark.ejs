@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
     <link rel="stylesheet" href="css/mark.css">
+
+	<!-- charting -->
+	<script src="js/Chart.min.js"></script>
+	<script src="js/Chart.StackedBar.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -25,10 +29,32 @@
             <a class="navbar-brand" href="#"><img class="main-icon" src="images/shark-icon.png"/><span class="main-brand">Shark</span></a>
         </div>
         <ul class="nav navbar-nav navbar-right">
+        	<li><a href="#" data-toggle="modal" data-target="#graph"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Graph</a></li>
             <li><a href="export"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Export</a></li>
         </ul>
     </div>
 </nav>
+
+
+<div class="modal fade" id="graph">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Results</h4>
+      </div>
+      <div class="modal-body">
+		<div style="padding:10px">
+        	<canvas id="canvas" height="450" width="600"></canvas>
+		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 
 <%
 // Add each of the practicals rows
@@ -58,13 +84,19 @@ for (var i = 0; i < global_prac.length; i++) {
                 <td width="110px">
                     <a href="/?sort=status">
                         <% if (global_query['sort'] == "status") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
-                        Status
+                        Type
                     </a>
                 </td>
                 <td width="110px">
                     <a href="/?sort=marks">
                         <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
-                        Marks
+                        Raw
+                    </a>
+                </td>
+                <td width="110px">
+                    <a href="/?sort=marks">
+                        <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Result
                     </a>
                 </td>
             </tr>
@@ -93,7 +125,7 @@ for (var i = 0; i < global_prac.length; i++) {
             break;
         case "status":
             scripts.sort(function(a, b){
-                return a.modified - b.modified;
+                return a.masters - b.masters;
             })
             break;
         default:
@@ -107,11 +139,13 @@ for (var i = 0; i < global_prac.length; i++) {
         var masters = scripts[s].masters;
         var modified = scripts[s].modified;
         var mark = scripts[s].mark;
-
+		var code = masters ? Math.ceil((mark / 13) * 10) : Math.ceil(mark);
+		
         var tr_class = ""
         if (modified) {
-            if (mark == 0.0) tr_class = "danger";
-            else tr_class = "warning";
+            if (mark <= 4.0) tr_class = "danger";
+            else if (mark <= 8.0) tr_class = "warning";
+            else tr_class = "success";
         }
         %>
             <tr class="<%=tr_class%>">
@@ -119,18 +153,21 @@ for (var i = 0; i < global_prac.length; i++) {
                     <a href="/edit?prac=<%=prac_name%>&script=<%=script_name%>"><%= script_name %></a>
                 </td>
                 <td>
-                    <%if (masters) {%>
-                        <b><%=student_name%></b>
+                    <%=student_name%>
+                </td>
+                <td>
+                	<%if (masters) {%>
+                        Masters
                     <%} else {%>
-                        <%=student_name%>
+                        Normal
                     <%}%>
                 </td>
         <%if (modified) {%>
                 <td>
-                    Marked
+                    <%=mark%>
                 </td>
                 <td>
-                    <%=mark%>
+                    <%=code%>
                 </td>
         <%}%>
             </tr>
@@ -147,5 +184,53 @@ for (var i = 0; i < global_prac.length; i++) {
 <!-- JavaScript -->
 <script src="js/jquery-1.10.2.js"></script>
 <script src="js/bootstrap.js"></script>
+
+<script>
+	var randomScalingFactor = function(){ return Math.round(Math.random()*100)};
+
+	<%
+		colours = ["rgba(255,0,0,0.5)","rgba(255,100,0,0.5)", "rgba(255,255,0,0.5)", "rgba(0,255,0,0.5)","rgba(0,255,255,0.5)","rgba(0,0,255,0.5)"];
+		colours_down = ["rgba(255,0,0,0.8)","rgba(255,100,0,0.8)", "rgba(255,255,0,0.8)", "rgba(0,255,0,0.8)","rgba(0,255,255,0.8)","rgba(0,0,255,0.8)"];
+		datasets = [];
+
+		// Create a dataset for each practical
+		for (var i = 0; i < global_prac.length; i++) {
+						var prac_name = global_prac[i].name;
+			var scripts = global_prac[i]['scripts'];
+			var data = [0,0,0,0,0,0,0,0,0,0,0];
+			for (var s = 0; s < scripts.length; s++) {
+		        var masters = scripts[s].masters;
+		        var modified = scripts[s].modified;
+		        var mark = scripts[s].mark;
+
+				if (!modified) continue;
+
+				// this formula really needs to be in a function...
+				var code = masters ? Math.ceil((mark / 13) * 10) : Math.ceil(mark); 
+				data[code]++;
+			}
+			
+			datasets.push({
+				fillColor : colours[i],
+				strokeColor : "rgba(220,220,220,0.8)",
+				highlightFill: colours_down[i],
+				highlightStroke: "rgba(220,220,220,1)",
+				data : data
+			});
+		}
+		var js = JSON.stringify(datasets);
+	%>
+
+	var barChartData = {
+		labels : ["0","1","2","3","4","5","6","7","8","9","10"],
+		datasets : <%-js%>
+	};
+	$('#graph').on('shown.bs.modal', function (event) {
+		var ctx = document.getElementById("canvas").getContext("2d");
+		window.myBar = new Chart(ctx).StackedBar(barChartData, {
+			responsive : true
+		});
+	});;
+</script>
 </body>
 </html>
