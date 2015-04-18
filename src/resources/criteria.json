@@ -285,7 +285,7 @@
                     {
                         "id" : "interact_unknown",
                         "criteria" : "Correctly handles unknown commands",
-                        "weight" : 0.5,
+                        "weight" : 0.25,
                         "false" : "The interact function doesn’t handle unknown commands"
                     },
                     {
