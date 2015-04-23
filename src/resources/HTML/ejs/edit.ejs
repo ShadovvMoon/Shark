@@ -1,4 +1,7 @@
 <html>
+<%
+var interview = (typeof global_query['interview'] !== 'undefined');
+%>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +14,6 @@
     <link rel="stylesheet" href="css/mark.css">
 </head>
 <body>
-
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -30,9 +32,12 @@
     </ul>
 </nav>
 
-
 <div class="row">
-    <div class="checkbox-view col-md-6">
+    <% if (interview) { %>
+        <div class="hidden">
+    <%} else {%>
+        <div class="checkbox-view col-md-6">
+    <%}%>
         <table class="table script_table">
             <thead class="root_head">
             <tr>
@@ -133,13 +138,18 @@ generateChildren(global_criteria, global_savefile, 0);
         </table>
 
     </div>
+    <% if (interview) { %>
+    <div class="col-md-12">
+    <%} else {%>
     <div class="col-md-6">
+   <%}%>
         <div id="editor"><%=script_source%>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
+var interview = <%- interview %>;
 var criteria = <%- json %>;
 var script = "<%=global_query.script%>";
 var prac = "<%=global_query.prac%>";

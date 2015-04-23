@@ -1,5 +1,6 @@
 // Globals
 masters_student = false;
+//interview = ?   <-- set by the edit.ejs
 
 // Criteria util
 
@@ -110,6 +111,111 @@ function exportChildren(children, output) {
 }
 
 /**
+ * Useful functions
+ */
+/**
+ *
+ * @param children
+ */
+function mark(children) {
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        child['viewed'] = false;
+        var subchildren = child['children'];
+        if (typeof subchildren !== 'undefined') {
+            mark(subchildren);
+        }
+    }
+}
+
+/**
+ *
+ * @param children
+ * @returns {number}
+ */
+function updateMarks(children) {
+    var total = 0.0;
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        var id = childIdentifier(child);
+
+        if (!masters_student && child['masters'] == true) {
+            continue;
+        }
+
+        // Calculate the subtotal
+        var subtotal = 0.0;
+        var subchildren = child['children'];
+        if (typeof subchildren !== 'undefined') {
+            subtotal = updateMarks(subchildren);
+        } else {
+            subtotal = child['weight'] * document.getElementById(id).checked;
+        }
+
+        // Update the child mark
+        var markfield = document.getElementById(id+"_marks");
+        markfield.innerHTML = subtotal.toPrecision(2);
+        child.mark = subtotal.toPrecision(2);
+
+        // Update the parent total
+        total += subtotal;
+    }
+    return total;
+}
+
+function computeComments(children) {
+    var output = "";
+    for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        var subchildren = child['children'];
+        if (!masters_student && child['masters'] == true) {
+            continue;
+        }
+        if (typeof subchildren !== 'undefined') {
+            output += computeComments(subchildren);
+        } else {
+            var id = childIdentifier(child);
+            var textarea = document.getElementById(id + "_textarea");
+            var value = textarea.value.trim();
+            if (value != "") {
+                output += value + "\n";
+            }
+        }
+
+    }
+    return output;
+}
+
+function updateComments(final) {
+    var codeMark = updateMarks(criteria);
+
+    // Is this a masters student? Apply the formula
+    if (masters_student) {
+        codeMark = (codeMark / 13.0) * 10.0;
+    }
+
+    var output = "";
+    if (!final && !interview) {
+        output += " " + Math.ceil(codeMark) + "/10\n";
+    } else {
+        output += "\n";
+    }
+    output += computeComments(criteria);
+    var rangeStart = editor.find(/General comments:/,{
+        regExp: true,
+        preventScroll: true // do not change selection
+    })
+    var rangeEnd = editor.find(/----------------------------------------------/,{
+        regExp: true,
+        start: rangeStart,
+        preventScroll: true // do not change selection
+    })
+    rangeStart.end = rangeEnd.end;
+    editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
+}
+
+
+/**
  *
  */
 function save() {
@@ -117,6 +223,9 @@ function save() {
     // Show the upload progress bar
     document.getElementById("save").innerHTML = "<span class='glyphicon glyphicon-save'></span> Saving</a>";
     var code = editor.getSession().getValue();
+
+    // Save the full copy
+    updateComments(true);
 
     // Save the comment and checkbox values
     var exported = {};
@@ -145,7 +254,7 @@ function save() {
         success: function(data){
             if (data['success'] == true) {
                 document.getElementById("save").innerHTML = "<span class='glyphicon glyphicon-save'></span> Saved</a>";
-                window.location = "/";
+                window.location = "/" + (interview ? "?interview" : "");
             }
         },
         dataType: "json"
@@ -158,101 +267,6 @@ $(document).ready(function() {
     var code = editor.getSession().getValue();
     masters_student = code.indexOf("##### CSSE7030 #####") > -1;
 
-    /**
-     *
-     * @param children
-     */
-    function mark(children) {
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            child['viewed'] = false;
-            var subchildren = child['children'];
-            if (typeof subchildren !== 'undefined') {
-                mark(subchildren);
-            }
-        }
-    }
-
-    /**
-     *
-     * @param children
-     * @returns {number}
-     */
-    function updateMarks(children) {
-        var total = 0.0;
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            var id = childIdentifier(child);
-
-            if (!masters_student && child['masters'] == true) {
-                continue;
-            }
-
-            // Calculate the subtotal
-            var subtotal = 0.0;
-            var subchildren = child['children'];
-            if (typeof subchildren !== 'undefined') {
-                subtotal = updateMarks(subchildren);
-            } else {
-                subtotal = child['weight'] * document.getElementById(id).checked;
-            }
-
-            // Update the child mark
-            var markfield = document.getElementById(id+"_marks");
-            markfield.innerHTML = subtotal.toPrecision(2);
-            child.mark = subtotal.toPrecision(2);
-
-            // Update the parent total
-            total += subtotal;
-        }
-        return total;
-    }
-
-    function computeComments(children) {
-        var output = "";
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            var subchildren = child['children'];
-            if (!masters_student && child['masters'] == true) {
-                continue;
-            }
-            if (typeof subchildren !== 'undefined') {
-                output += computeComments(subchildren);
-            } else {
-                var id = childIdentifier(child);
-                var textarea = document.getElementById(id + "_textarea");
-                var value = textarea.value.trim();
-                if (value != "") {
-                    output += value + "\n";
-                }
-            }
-
-        }
-        return output;
-    }
-
-    function updateComments() {
-		var codeMark = updateMarks(criteria);
-
-        // Is this a masters student? Apply the formula
-        if (masters_student) {
-            codeMark = (codeMark / 13.0) * 10.0;
-        }
-
-		var output = " " + Math.ceil(codeMark) + "/10\n"
-        output += computeComments(criteria);
-        var rangeStart = editor.find(/General comments:/,{
-            regExp: true,
-            preventScroll: true // do not change selection
-        })
-        var rangeEnd = editor.find(/----------------------------------------------/,{
-            regExp: true,
-            start: rangeStart,
-            preventScroll: true // do not change selection
-        })
-        rangeStart.end = rangeEnd.end;
-        editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
-    }
 
     /**
      *
@@ -315,19 +329,19 @@ $(document).ready(function() {
             //updateMarks(criteria);
 
             // Update the code
-            updateComments();
+            updateComments(false);
 
     });
 
     // Textarea listener (potentially laggy!)
     $('textarea').on('keyup', function (event) {
-        updateComments();
+        updateComments(false);
     });
 
     // Update the marks
     //updateMarks(criteria);
 
     // Update the code
-    updateComments();
+    updateComments(false);
 
 });
