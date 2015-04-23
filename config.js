@@ -35,8 +35,8 @@ config.publicPath        = "./src/resources/HTML/public";
 config.tuteDirectory   = "../MyPyTutor/CSSE1001Tutorials";
 config.tuteConfig      = config.tuteDirectory + "/tutorials.txt";
 config.saveDirectory   = "../MyPyTutor/CSSE1001Solutions";
-config.tmpDirectory    = "../MyPyTutor/tmp";
-config.tmpScript       = "script.py";
+config.tmpDirectory    = "./db/support";
+config.tmpScript       = "assign1_soln.py";
 config.tutorLib        = "../MyPyTutor/code";
 config.tutorLaunch     = "MyPyTutor.py";
 

@@ -4,17 +4,16 @@ function run() {
     var code = editor.getSession().getValue();
 
     restart();
-    addOutput("Testing script...");
+    //addOutput("Testing script...");
     $.ajax({
         type: "POST",
         url: URL,
         data: {
-            code: code,
-            tutorial: tutorial
+            code: code
         },
         success: function(data) {
 
-
+            /*
             console.log(JSON.stringify(data));
             if (!data.success) {
                 console.log("There is a syntax error on line " + data.line);
@@ -27,6 +26,7 @@ function run() {
 
                 addOutput(status + "\n");
             }
+            */
 
             // Restart the socket interpreter
             addOutput("\n");
@@ -45,6 +45,12 @@ function run() {
         },
         dataType: "json"
     });
+
+    $('#graph').modal('toggle');
+    output.focus(); //To focus the ace editor
+    session = output.getSession();
+    count = session.getLength();
+    output.gotoLine(count, session.getLine(count-1).length);
 }
 
 var ws = undefined;
@@ -55,7 +61,15 @@ var serverLength = 0;
 // Render timer (faster)
 var needsRedraw = false;
 function restart() {
-    addOutput("\n================================ RESTART ================================\n");
+    output.$blockScrolling = Infinity
+    output.moveCursorTo(Infinity, Infinity);
+    output.session.setValue("");
+    output.renderer.scrollToRow(Infinity);
+    needsRedraw = true;
+    serverCursor = output.getSession().getSelection().getCursor();
+    serverLength = 0;
+
+    //addOutput("\n================================ RESTART ================================\n");
 }
 function addOutput(data) {
     /*

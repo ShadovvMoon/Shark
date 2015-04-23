@@ -45,8 +45,10 @@ module.exports = function(server, app, callback) {
                 'pipe',
                 'pipe',
                 'pipe'
-            ]
+            ],
+            cwd: path.join(mainDir, config.tmpDirectory)
         });
+
         p.stdin.setEncoding('utf8');
         p.stdout.setEncoding('utf8');
         p.stderr.setEncoding('utf8');
@@ -80,20 +82,26 @@ module.exports = function(server, app, callback) {
         // Write the code to a file
         fs.writeFile(code_path, code, function (err) {
             if (err) throw err;
+            return res.send("true");
 
             // Run the code
-            var mainDir = path.dirname(code_path);
+            /*
+            var mainDir = path.dirname(require.main.filename);
+            var tempDir = path.join(mainDir, config.tmpDirectory);
+
             var options = {
                 mode: 'text',
                 pythonPath: "python3",
                 pythonOptions: ['-u'],
+                scriptPath: tempDir,
                 args: []
             };
 
-            PythonShell.run(code_path, options, function (err, results) {
-                if (err) throw err;
-                res.send(JSON.parse(results));
+            PythonShell.run(config.tmpScript, options, function (err, results) {
+                if (err) return res.send(err);
+                return res.send(JSON.parse(results));
             });
+            */
         });
     });
 

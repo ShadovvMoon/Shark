@@ -28,9 +28,24 @@ var interview = (typeof global_query['interview'] !== 'undefined');
         </div>
     </div>
     <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" onClick="run()"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Run</a></li>
         <li><a href="#" onClick="save()" id="save"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save</a></li>
     </ul>
 </nav>
+
+<div class="modal fade" id="graph">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="panel panel-default prac-output">
+                    <div class="panel-body prac-output-body">
+                        <div id="output"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <div class="row">
     <% if (interview) { %>
@@ -160,12 +175,26 @@ var prac = "<%=global_query.prac%>";
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/xcode");
     editor.getSession().setMode("ace/mode/python");
+
+    // Extra code for the python execution engine
+    var output = ace.edit("output");
+    output.setTheme("ace/theme/xcode");
+    output.getSession().setMode("ace/mode/python");
+    output.setShowPrintMargin(false);
+    output.setBehavioursEnabled(false);
+    //output.setReadOnly(true);
+    //output.setHighlightActiveLine(false);
+    output.setShowFoldWidgets(false);
+    output.setHighlightGutterLine(false);
+    output.getSession().setUseWrapMode(true)
+    output.renderer.setShowGutter(false);
 </script>
 
 <!-- JavaScript -->
 <script src="js/jquery-1.10.2.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/edit.js"></script>
+<script src="js/practical.js"></script>
 
 <!-- Resizing TextAreas -->
 <script type="text/javascript">
