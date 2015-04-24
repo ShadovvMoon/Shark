@@ -99,7 +99,6 @@ function flushSocket() {
     if ("WebSocket" in window) {
 
         // Add INSERT
-
         ws = new WebSocket("ws://localhost:3333");
         ws.onopen = function () {
 
@@ -124,6 +123,20 @@ $(document).ready(function() {
 			output.renderer.updateFull();
 		}
 	}, 500);
+
+    function forceJump() {
+        // Update position with clip forced
+        var row = Infinity;
+        var column = Infinity;
+        var fold = output.session.getFoldAt(Infinity, Infinity, 1);
+        if (fold) {
+            row = fold.start.row;
+            column = fold.start.column;
+        }
+        output.selection.$keepDesiredColumnOnChange = true;
+        output.selection.lead.setPosition(row, column, true);
+        output.selection.$keepDesiredColumnOnChange = false;
+    }
 
     // Stack overflow http://stackoverflow.com/questions/263743/caret-position-in-textarea-in-characters-from-the-start
     function getInputSelection(el) {
@@ -185,19 +198,48 @@ $(document).ready(function() {
      */
 
     // Create handlers
+    output.on('paste', function (event) {
+        // Is this a valid paste location?
+        var clientCursor = output.getSession().getSelection().getCursor();
+        if ((clientCursor.column < serverCursor.column || clientCursor.row < serverCursor.row)) {
+            // Invalid. Clear the paste
+            event.text = "";
+        }
+    });
+
     output.on('change', function (event) {
-        if (!(output.curOp && output.curOp.command.name)) return;
-        if (event.data.action == "insertText" && event.data.text == "\n") {
+        if (!(output.curOp && output.curOp.command.name)) {
+            return;
+        }
+        if (event.data.action == "insertText" && event.data.text.length > 0) {
             if (typeof ws !== 'undefined') {
-                var client = output.getSession().getValue();
-                ws.send(client.substring(serverLength));
-				serverLength = client.length;
+                // If they try to insert before the server position, move the insertion
+                if (event.data.text == "\n" || event.data.range.start.column < serverCursor.column || event.data.range.start.row < serverCursor.row) {
+                    // Remove the newly inserted text
+                    output.curOp = {command: "remove"};
+                    output.remove(event.data.range);
+                    // Force an end jump
+                    forceJump();
+                    // Insert the text at the end of the input
+                    output.curOp = {command: "insert"};
+                    output.insert(event.data.text);
+                }
+
+                if (event.data.text == "\n") {
+                    // Send the data to the server
+                    var client = output.getSession().getValue();
+                    ws.send(client.substring(serverLength));
+                    serverLength = client.length;
+                    console.log("serverLength = " + serverLength);
+                }
             }
         }
         if (event.data.action == "removeText" && event.data.text.length > 0 &&
                 (event.data.range.start.column < serverCursor.column || event.data.range.start.row < serverCursor.row)) {
+
+            // Insert the old text
             output.insert(event.data.text);
-            output.moveCursorTo(Infinity, Infinity);
+            forceJump();
         }
     });
 
