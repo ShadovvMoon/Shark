@@ -163,6 +163,35 @@ function updateMarks(children) {
     return total;
 }
 
+function chunkString(s, len) {
+    // FROM http://stackoverflow.com/questions/6632530/chunk-split-a-string-in-javascript-without-breaking-words
+    var curr = len, prev = 0;
+    output = [];
+    while(s[curr]) {
+        if(s[curr++] == ' ') {
+            output.push(s.substring(prev,curr));
+            prev = curr;
+            curr += len;
+        }
+        else
+        {
+            var currReverse = curr;
+            do {
+                if(s.substring(currReverse - 1, currReverse) == ' ')
+                {
+                    output.push(s.substring(prev,currReverse));
+                    prev = currReverse;
+                    curr = currReverse + len;
+                    break;
+                }
+                currReverse--;
+            } while(currReverse > prev)
+        }
+    }
+    output.push(s.substr(prev));
+    return output;
+}
+
 function computeComments(children) {
     var output = "";
     for (var i = 0; i < children.length; i++) {
@@ -178,12 +207,36 @@ function computeComments(children) {
             var textarea = document.getElementById(id + "_textarea");
             var value = textarea.value.trim();
             if (value != "") {
-                output += value + "\n";
+
+                // Split value into 80 line segments
+                var strings = chunkString(value, 78);
+                var display = strings.join("\n  ");
+                output += "• " + display + "\n";
             }
         }
 
     }
     return output;
+}
+
+function jumpTo(regex) {
+
+    var start = 0;
+    for (var i = 0; i < regex.length; i++) {
+        start = editor.find(regex[i], {
+            regExp: true,
+            start: start,
+            preventScroll: (i != regex.length - 1)
+        });
+    }
+    /*
+    var code = editor.getSession().getValue();
+    console.log(code.search(RegExp(regex, "")))
+
+    editor.find(RegExp(regex, ""), {
+        regExp:true
+    });
+    */
 }
 
 function updateComments(final) {

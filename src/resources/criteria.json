@@ -6,10 +6,12 @@
             {
                 "criteria": "load_dates",
                 "weight": 1,
+                "jump" : ["def load_dates"],
                 "children" : [
                     {
                         "id" : "load_dates_open_close",
                         "criteria" : "Opens and closes file",
+                        "jump" : ["def load_dates", "open.*?\\(.*?\\)"],
                         "weight" : 0.5,
                         "false" : "The load_dates function doesn’t open/close the station file"
                     },
@@ -24,6 +26,7 @@
             {
                 "criteria": "load_station_data",
                 "weight": 1,
+                "jump" : ["def load_station_data"],
                 "children" : [
                     {
                         "id" : "load_station_data_temperature",
@@ -34,6 +37,7 @@
                     {
                         "id" : "load_station_data_strip",
                         "criteria" : "<indent>Strips new line",
+                        "jump" : ["def load_station_data", "\\.strip\\(.*?\\)"],
                         "weight" : 0,
                         "false" : "Don’t forget to sanitise your input. The strip() command will remove any leading or trailing whitespace, including the newline character",
                         "requires" : ["load_station_data_temperature"]
@@ -41,6 +45,7 @@
                     {
                         "id" : "load_station_data_floats",
                         "criteria" : "<indent>Converts temperatures to floats",
+                        "jump" : ["def load_station_data", "float\\(.*?\\)"],
                         "weight" : 0.25,
                         "false" : "The load_station_data function doesn’t convert temperatures to floats",
                         "requires" : ["load_station_data_temperature"]
