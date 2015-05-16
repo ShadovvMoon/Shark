@@ -166,7 +166,7 @@ function updateMarks(children) {
 function chunkString(s, len) {
     // FROM http://stackoverflow.com/questions/6632530/chunk-split-a-string-in-javascript-without-breaking-words
     var curr = len, prev = 0;
-    output = [];
+    var output = [];
     while(s[curr]) {
         if(s[curr++] == ' ') {
             output.push(s.substring(prev,curr));
@@ -220,7 +220,6 @@ function computeComments(children) {
 }
 
 function jumpTo(regex) {
-
     var start = 0;
     for (var i = 0; i < regex.length; i++) {
         start = editor.find(regex[i], {
@@ -229,14 +228,6 @@ function jumpTo(regex) {
             preventScroll: (i != regex.length - 1)
         });
     }
-    /*
-    var code = editor.getSession().getValue();
-    console.log(code.search(RegExp(regex, "")))
-
-    editor.find(RegExp(regex, ""), {
-        regExp:true
-    });
-    */
 }
 
 function updateComments(final) {
@@ -264,7 +255,13 @@ function updateComments(final) {
         preventScroll: true // do not change selection
     })
     rangeStart.end = rangeEnd.end;
+
+    // How many rows were added?
+    var oldLines = rangeStart.end.row - rangeStart.start.row;
+    var newLines = output.split("\n").length;
+    var row = editor.getFirstVisibleRow();
     editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
+    editor.scrollToRow(row + (newLines-oldLines));
 }
 
 

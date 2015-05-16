@@ -147,7 +147,9 @@ function generateChildren(children, savefile, level) {
                 <td class="cell_label" style="padding-left:<%=margin%>"><%-name%></td>
                 <%}%>
                 <td><%=weight%></td>
-                <td id="<%=identifier%>_marks"><%=marks%></td>
+                <td>
+                    <textarea readonly  style="resize: none;width:50px;text-align:center" id="<%=identifier%>_marks" rows="1"><%=marks%></textarea>
+                </td>
                 <td>
                     <%
                         if (typeof subchildren === 'undefined') {
