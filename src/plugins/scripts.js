@@ -50,6 +50,24 @@ function getScriptInfo(script, criteria, callback) {
             student = name_array[1].trim();
         }
 
+        // How many tests did this student pass?
+        var tests_regex = /TEST RUN:([\s\S]*)END TEST/
+        var test_array = script_data.match(tests_regex);
+        var total_tests = 0;
+        var total_passed = 0;
+        if (test_array) {
+            var tests = test_array[1].trim();
+            var matches = tests.match(RegExp(".*?: (\\d+?)\/(\\d+)", "g"));
+            if (matches) {
+                for (var i = 0; i < matches.length; i++) {
+                    var match = matches[i];
+                    var split = RegExp(".*?: (\\d+?)\/(\\d+)").exec(match);
+                    total_passed += parseInt(split[1]);
+                    total_tests += parseInt(split[2]);
+                }
+            }
+        }
+
         // Does the script have a save file?
         fs.exists(savejson, function(exists) {
 
@@ -65,7 +83,9 @@ function getScriptInfo(script, criteria, callback) {
                     masters: masters,
                     student: student,
                     modified: exists,
-                    mark: mark
+                    mark: mark,
+                    testsRun: total_tests,
+                    testsPassed: total_passed
                 })
             }
 

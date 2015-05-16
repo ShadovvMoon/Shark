@@ -92,20 +92,26 @@ for (var i = 0; i < global_prac.length; i++) {
                         Name
                     </a>
                 </td>
-                <td width="110px">
+                <td align="center" width="110px">
                     <a href="/?sort=status<%=preurl%>">
                         <% if (global_query['sort'] == "status") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                         Type
                     </a>
                 </td>
+                <td align="center" width="110px">
+                    <a href="/?sort=tests<%=preurl%>">
+                        <% if (global_query['sort'] == "tests") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Tests
+                    </a>
+                </td>
                 <%if (!interview) {%>
-                    <td width="110px">
+                    <td align="center" width="110px">
                         <a href="/?sort=marks<%=preurl%>">
                             <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                             Raw
                         </a>
                     </td>
-                    <td width="110px">
+                    <td align="center" width="110px">
                         <a href="/?sort=marks<%=preurl%>">
                             <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                             Result
@@ -141,6 +147,11 @@ for (var i = 0; i < global_prac.length; i++) {
                 return a.masters - b.masters;
             })
             break;
+        case "tests":
+            scripts.sort(function(a, b){
+                return a.testsPassed - b.testsPassed;
+            })
+            break;
         default:
             break;
     }
@@ -153,7 +164,9 @@ for (var i = 0; i < global_prac.length; i++) {
         var modified = scripts[s].modified;
         var mark = scripts[s].mark;
 		var code = masters ? Math.ceil((mark / 13) * 10) : Math.ceil(mark);
-		
+        var tests = scripts[s].testsRun;
+        var passed = scripts[s].testsPassed;
+
         var tr_class = ""
         if (modified) {
             if (mark <= 4.0) tr_class = "danger";
@@ -171,18 +184,21 @@ for (var i = 0; i < global_prac.length; i++) {
                 <td>
                     <%=student_name%>
                 </td>
-                <td>
+                <td align="center">
                 	<%if (masters) {%>
                         Masters
                     <%} else {%>
                         Normal
                     <%}%>
                 </td>
+                <td align="center">
+                    <%=passed%> / <%=tests%>
+                </td>
         <%if (modified && !interview) {%>
-                <td>
+                <td align="center">
                     <%=mark%>
                 </td>
-                <td>
+                <td align="center">
                     <%=code%>
                 </td>
         <%}%>
