@@ -40,7 +40,8 @@ module.exports = function(server, app, callback) {
 
         // Python experiment
         var mainDir = path.dirname(require.main.filename);
-        var p = require('child_process').spawn('python3', ['-u', '-i', path.join(mainDir, config.tmpDirectory, config.tmpScript)], {
+        
+        //TODO: Add interface to pick python path 
             stdio: [
                 'pipe',
                 'pipe',
@@ -48,7 +49,6 @@ module.exports = function(server, app, callback) {
             ],
             cwd: path.join(mainDir, config.tmpDirectory)
         });
-
         p.stdin.setEncoding('utf8');
         p.stdout.setEncoding('utf8');
         p.stderr.setEncoding('utf8');
