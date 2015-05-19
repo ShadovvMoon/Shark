@@ -240,7 +240,7 @@ function updateGeneral(final, meeting_mark) {
     codeMark = Math.ceil(codeMark);
     var output = "";
     // Only show a code mark if the meeting marks are 10
-    if (meeting_mark >= 10 && !final && !interview) {
+    if (meeting_mark >= codeMark && !final && !interview) {
         output += " " + codeMark + "/10\n";
     } else {
         output += "\n";
