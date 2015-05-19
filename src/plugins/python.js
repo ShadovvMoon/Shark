@@ -40,14 +40,20 @@ module.exports = function(server, app, callback) {
 
         // Python experiment
         var mainDir = path.dirname(require.main.filename);
+        var windows = process.platform === "win32" || process.platform === "win64";
         
         //TODO: Add interface to pick python path 
+        var pythonPath = windows ? "C:/Python34/python.exe" : "python3";
+        var p = require('child_process').spawn(pythonPath, ['-u', '-i', path.join(mainDir, config.tmpDirectory, config.tmpScript)], {
+        	
             stdio: [
                 'pipe',
                 'pipe',
                 'pipe'
             ],
-            cwd: path.join(mainDir, config.tmpDirectory)
+            
+            // cwd needs to be modified to a relative path (so python.exe is relative to this path)
+            cwd: windows ? undefined : path.join(mainDir, config.tmpDirectory)
         });
         p.stdin.setEncoding('utf8');
         p.stdout.setEncoding('utf8');
