@@ -230,17 +230,18 @@ function jumpTo(regex) {
     }
 }
 
-function updateComments(final) {
+function updateGeneral(final, meeting_mark) {
     var codeMark = updateMarks(criteria);
 
     // Is this a masters student? Apply the formula
     if (masters_student) {
         codeMark = (codeMark / 13.0) * 10.0;
     }
-
+    codeMark = Math.ceil(codeMark);
     var output = "";
-    if (!final && !interview) {
-        output += " " + Math.ceil(codeMark) + "/10\n";
+    // Only show a code mark if the meeting marks are 10
+    if (meeting_mark >= 10 && !final && !interview) {
+        output += " " + codeMark + "/10\n";
     } else {
         output += "\n";
     }
@@ -262,6 +263,69 @@ function updateComments(final) {
     var row = editor.getFirstVisibleRow();
     editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
     editor.scrollToRow(row + (newLines-oldLines));
+    return codeMark;
+}
+
+function updateMeeting() {
+    var icomm = document.getElementById("interview-comments");
+    var strings = chunkString(icomm.value, 78);
+    var output = strings.join("\n  ");
+    var rangeStart = editor.find(/Meeting comments:/,{
+        regExp: true,
+        preventScroll: true // do not change selection
+    })
+    var rangeEnd = editor.find(/General comments:/,{
+        regExp: true,
+        start: rangeStart,
+        preventScroll: true // do not change selection
+    })
+    rangeStart.end = rangeEnd.start;
+
+    // How many rows were added?
+    var oldLines = rangeStart.end.row - rangeStart.start.row;
+    var newLines = output.split("\n").length;
+    var row = editor.getFirstVisibleRow();
+    editor.session.replace(rangeStart, "Meeting comments: "+output+"\n");
+    editor.scrollToRow(row + (newLines-oldLines));
+}
+
+function updateTotal(final, meeting_mark, code_mark) {
+    var total_mark = Math.min(meeting_mark, code_mark);
+    var output = "";
+    if (!final && !interview) {
+        output += total_mark + "/10";
+    }
+    var rangeStart = editor.find(/Total:/,{
+        regExp: true,
+        preventScroll: true // do not change selection
+    })
+    var rangeEnd = editor.find(/Meeting comments:/,{
+        regExp: true,
+        start: rangeStart,
+        preventScroll: true // do not change selection
+    })
+    rangeStart.end = rangeEnd.start;
+
+    // How many rows were added?
+    var oldLines = rangeStart.end.row - rangeStart.start.row;
+    var newLines = output.split("\n").length;
+    var row = editor.getFirstVisibleRow();
+    editor.session.replace(rangeStart, "Total: "+output+"\n\n");
+    editor.scrollToRow(row + (newLines-oldLines));
+
+
+}
+
+function updateComments(final) {
+    var imark = document.getElementById("interview-mark").value;
+    var meeting_mark = parseInt(imark);
+    if (imark == "") {
+        meeting_mark = 10;
+    }
+
+    var code_mark = updateGeneral(final, meeting_mark);
+    updateMeeting();
+    updateTotal(final, meeting_mark, code_mark);
 }
 
 
@@ -273,6 +337,11 @@ function save() {
     // Show the upload progress bar
     document.getElementById("save").innerHTML = "<span class='glyphicon glyphicon-save'></span> Saving</a>";
     var code = editor.getSession().getValue();
+
+    // Save the interview comments
+    var imark = document.getElementById("interview-mark").value;
+    var icomm = document.getElementById("interview-comments").value;
+    var iatte = document.getElementById("interviewed").checked;
 
     // Save the full copy
     updateComments(true);
@@ -286,7 +355,7 @@ function save() {
         {
             var xhr = new window.XMLHttpRequest();
             //Upload progress
-            xhr.upload.addEventListener("progress", function(evt){
+            xhr.upload.addEventListener("progress", function(evt) {
                 if (evt.lengthComputable) {
                     var percentComplete = evt.loaded / evt.total;
                 }
@@ -299,7 +368,14 @@ function save() {
             code: code,
             script: script,
             prac: prac,
-            criteria: exported
+            criteria: {
+                meeting: {
+                    attended: iatte,
+                    mark: imark,
+                    comments: icomm
+                },
+                criteria: exported
+            }
         },
         success: function(data){
             if (data['success'] == true) {
@@ -314,6 +390,34 @@ function save() {
 
 $(document).ready(function() {
 
+    // Interview
+    var imark = document.getElementById("interview-mark");
+    var icomm = document.getElementById("interview-comments");
+
+    function updateInterviewed(start) {
+        var interview = $($('#interviewed')).prop('checked');
+        if (!interview) {
+            imark.readOnly = true;
+            imark.value = "0";
+            icomm.readOnly = true;
+            icomm.value = "Did not show up for interview";
+        } else if (!start) {
+            imark.readOnly = false;
+            imark.value = "";
+            icomm.readOnly = false;
+            icomm.value = "";
+            imark.focus();
+        }
+        updateComments(false);
+    }
+    $(function() {
+        $('#interviewed').change(function() {
+            updateInterviewed(false);
+        })
+    })
+    updateInterviewed(true);
+
+    // Editor
     var code = editor.getSession().getValue();
     masters_student = code.indexOf("##### CSSE7030 #####") > -1;
 
@@ -385,6 +489,11 @@ $(document).ready(function() {
 
     // Textarea listener (potentially laggy!)
     $('textarea').on('keyup', function (event) {
+        updateComments(false);
+    });
+
+    // Meeting comments listener (potentially laggy!)
+    $('input').on('keyup', function (event) {
         updateComments(false);
     });
 

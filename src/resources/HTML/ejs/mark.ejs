@@ -173,7 +173,11 @@ for (var i = 0; i < global_prac.length; i++) {
             else if (mark <= 8.0) tr_class = "warning";
             else tr_class = "success";
             if (interview) {
-                tr_class = "default";
+                if (scripts[s].attended) {
+                    tr_class = "success";
+                } else {
+                    tr_class = "default";
+                }
             }
         }
         %>

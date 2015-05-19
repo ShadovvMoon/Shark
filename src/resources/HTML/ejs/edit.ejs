@@ -9,6 +9,7 @@ var interview = (typeof global_query['interview'] !== 'undefined');
     <meta name="author" content="">
     <title>Editing Script</title>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
     <link rel="stylesheet" href="css/mark.css">
@@ -41,7 +42,7 @@ var interview = (typeof global_query['interview'] !== 'undefined');
             <div class="modal-body">
                 <div class="panel panel-default prac-output">
                     <div class="panel-body prac-output-body">
-                        <div id="output"></div>
+                        <div id="output" spellcheck='false' ></div>
                     </div>
                 </div>
             </div>
@@ -49,11 +50,62 @@ var interview = (typeof global_query['interview'] !== 'undefined');
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<%
+var script_source = global_script['source'];
+var json = JSON.stringify(global_criteria);
+
+// Calculate parameters [TODO: functionify this to fix duplication with scripts.js]
+// What is the name of this student?
+var name_regex = /Student Name:(.*)/
+var name_array = name_regex.exec(script_source);
+var masters = script_source.indexOf("##### CSSE7030 #####") > -1;
+var student = "";
+if (name_array) {
+    student = name_array[1].trim();
+}
+
+var version = 0;
+if (typeof global_savefile !== 'undefined') {
+    if (typeof global_savefile.criteria === 'undefined') {
+        version = 1;
+    } else {
+        version = 2;
+    }
+}
+
+var criteria_save = undefined;
+var meeting_save  = {
+    attended: false,
+    mark: "",
+    comments: ""
+};
+if (version == 1) {
+    criteria_save = global_savefile;
+} else if (version == 2) {
+    criteria_save = global_savefile.criteria;
+    meeting_save = global_savefile.meeting;
+}
+
+function interview_header() {
+    %>
+        <div class="root_header">
+            <div class="pull-right">
+                <input name="interviewed" <%if (meeting_save.attended == "true") {%>checked<%}%> id="interviewed" style="float:right;" type="checkbox" data-toggle="toggle" data-offstyle="danger" data-onstyle="default" data-on="Interviewed" data-off="Not Interviewed">
+                <input name="interview-mark" id="interview-mark" type="text" class="short form-control" placeholder="Interview Mark" value="<%=meeting_save.mark%>">
+            </div>
+            <h3><%=student%></h3>
+            <textarea name="interview-comments" id="interview-comments"><%=meeting_save.comments%></textarea>
+        </div>
+    <%
+}
+%>
+
 <div class="row">
     <% if (interview) { %>
         <div class="hidden">
     <%} else {%>
         <div class="checkbox-view col-md-6">
+            <%interview_header();%>
     <%}%>
         <table class="table script_table">
             <thead class="root_head">
@@ -68,9 +120,6 @@ var interview = (typeof global_query['interview'] !== 'undefined');
 
 
 <%
-var script_source = global_script['source'];
-var json = JSON.stringify(global_criteria);
-
 function childIdentifier(child) {
     var identifier = child['id'];
     if (typeof identifier === 'undefined') {
@@ -150,12 +199,12 @@ function generateChildren(children, savefile, level) {
                 <%}%>
                 <td><%=weight%></td>
                 <td>
-                    <textarea readonly  style="resize: none;width:50px;text-align:center" id="<%=identifier%>_marks" rows="1"><%=marks%></textarea>
+                    <textarea class="clear" readonly  style="resize: none;width:50px;text-align:center" id="<%=identifier%>_marks" rows="1"><%=marks%></textarea>
                 </td>
                 <td>
                     <%
                         if (typeof subchildren === 'undefined') {
-                            %><textarea id="<%=identifier%>_textarea" rows="1"><%=unticked%></textarea><%
+                            %><textarea class="clear" id="<%=identifier%>_textarea" rows="1"><%=unticked%></textarea><%
                         }
                      %>
                 </td>
@@ -166,7 +215,7 @@ function generateChildren(children, savefile, level) {
         generateChildren(subchildren, savefile, level+1);
     }
 }
-generateChildren(global_criteria, global_savefile, 0);
+generateChildren(global_criteria, criteria_save, 0);
 %>
 
         </table>
@@ -174,6 +223,7 @@ generateChildren(global_criteria, global_savefile, 0);
     </div>
     <% if (interview) { %>
     <div class="col-md-12">
+        <%interview_header();%>
     <%} else {%>
     <div class="col-md-6">
    <%}%>
@@ -213,6 +263,7 @@ var prac = "<%=global_query.prac%>";
 <!-- JavaScript -->
 <script src="js/jquery-1.10.2.js"></script>
 <script src="js/bootstrap.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
 <script src="js/edit.js"></script>
 <script src="js/practical.js"></script>
 

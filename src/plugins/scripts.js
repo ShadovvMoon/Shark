@@ -72,15 +72,41 @@ function getScriptInfo(script, criteria, callback) {
         fs.exists(savejson, function(exists) {
 
             function render(save_json) {
+
+                // TODO: make a centralised "framework" for script saves
+                var version = 0;
+                if (typeof save_json !== 'undefined') {
+                    if (typeof save_json.criteria === 'undefined') {
+                        version = 1;
+                    } else {
+                        version = 2;
+                    }
+                }
+
+                var criteria_save = undefined;
+                var meeting_save  = {
+                    attended: false,
+                    mark: "",
+                    comments: ""
+                };
+                if (version == 1) {
+                    criteria_save = save_json;
+                } else if (version == 2) {
+                    criteria_save = save_json.criteria;
+                    meeting_save = save_json.meeting;
+                }
+
+
                 var mark = -1.0;
                 if (typeof save_json !== 'undefined') {
-                    mark = criteria_util.calculateMarks(criteria, save_json).toPrecision(2);
+                    mark = criteria_util.calculateMarks(criteria, criteria_save).toPrecision(2);
                 }
 
                 // Read the save file if it exists
                 callback(undefined, {
                     name: name,
                     masters: masters,
+                    attended: meeting_save.attended,
                     student: student,
                     modified: exists,
                     mark: mark,
