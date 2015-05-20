@@ -138,6 +138,11 @@ for (var i = 0; i < global_prac.length; i++) {
                 return a.mark - b.mark;
             })
             break;
+        case "mark_time":
+            scripts.sort(function(a, b){
+                return a.time.localeCompare(b.time);
+            })
+            break;
         case "number":
             scripts.sort(function(a, b){
                 return a.name.localeCompare(b.name);
