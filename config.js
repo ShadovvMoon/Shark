@@ -28,6 +28,13 @@ config.markingDirectory  = config.pythonDirectory + "/marking";
 config.ejsPath           = "./src/resources/HTML/ejs";
 config.criteriaPath      = "./src/resources/criteria.json";
 config.publicPath        = "./src/resources/HTML/public";
+config.supportPath       = "./src/resources/Support";
+
+// Python execution
+config.pythonPaths = [
+    "/usr/local/bin/python3",   // Mac
+    "C:/Python34/python.exe"    // Windows (default install)
+];
 
 // MyPyTutor
 //---------------------------
@@ -35,7 +42,7 @@ config.publicPath        = "./src/resources/HTML/public";
 config.tuteDirectory   = "../MyPyTutor/CSSE1001Tutorials";
 config.tuteConfig      = config.tuteDirectory + "/tutorials.txt";
 config.saveDirectory   = "../MyPyTutor/CSSE1001Solutions";
-config.tmpDirectory    = "./db/support";
+config.tmpDirectory    = config.pythonDirectory + "/support";
 config.tmpScript       = "assign1_soln.py";
 config.tutorLib        = "../MyPyTutor/code";
 config.tutorLaunch     = "MyPyTutor.py";
