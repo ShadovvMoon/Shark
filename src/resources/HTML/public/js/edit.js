@@ -241,7 +241,7 @@ function updateGeneral(final, meeting_mark, row, jump) {
     codeMark = Math.ceil(codeMark);
     var output = "";
     // Only show a code mark if the meeting marks are 10
-    if (meeting_mark >= codeMark && !final && !interview) {
+    if ((final && meeting_mark >= codeMark) || (!final && !interview)) {
         output += " " + codeMark + "/10\n";
     } else {
         output += "\n";
@@ -293,7 +293,7 @@ function updateMeeting() {
 function updateTotal(final, meeting_mark, code_mark) {
     var total_mark = Math.min(meeting_mark, code_mark);
     var output = "";
-    if (!final && !interview) {
+    if (final || !interview) {
         output += total_mark + "/10";
     }
     var rangeStart = editor.find(/Total:/,{
@@ -373,22 +373,23 @@ function save() {
 
     // Show the upload progress bar
     document.getElementById("save").innerHTML = "<span class='glyphicon glyphicon-save'></span> Saving</a>";
-    var code = editor.getSession().getValue();
 
     // Save the interview comments
     var imark = document.getElementById("interview-mark").value;
     var icomm = document.getElementById("interview-comments").value;
     var iatte = document.getElementById("interviewed").checked;
+    document.getElementById("editor").style.display = "none";
+
+    // Flush analytics
+    goInactive();
 
     // Save the full copy
     updateComments(true);
+    var code = editor.getSession().getValue();
 
     // Save the comment and checkbox values
     var exported = {};
     exportChildren(criteria, exported);
-
-    // Flush analytics
-    goInactive();
 
     $.ajax({
         xhr: function()
