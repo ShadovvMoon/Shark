@@ -231,7 +231,7 @@ function jumpTo(regex) {
 }
 
 // TODO - duplicate code
-function updateGeneral(final, meeting_mark) {
+function updateGeneral(final, meeting_mark, row, jump) {
     var codeMark = updateMarks(criteria);
 
     // Is this a masters student? Apply the formula
@@ -261,9 +261,8 @@ function updateGeneral(final, meeting_mark) {
     // How many rows were added?
     var oldLines = rangeStart.end.row - rangeStart.start.row;
     var newLines = output.split("\n").length;
-    var row = editor.getFirstVisibleRow();
     editor.session.replace(rangeStart, "General comments:"+output+"\n----------------------------------------------");
-    editor.scrollToRow(row + (newLines-oldLines));
+    editor.scrollToRow(row + (newLines-oldLines) + jump);
     return codeMark;
 }
 
@@ -286,9 +285,8 @@ function updateMeeting() {
     // How many rows were added?
     var oldLines = rangeStart.end.row - rangeStart.start.row;
     var newLines = output.split("\n").length;
-    var row = editor.getFirstVisibleRow();
     editor.session.replace(rangeStart, "Meeting comments: "+output+"\n");
-    editor.scrollToRow(row + (newLines-oldLines));
+    return (newLines-oldLines);
 }
 
 //TODO - CSSE1001 specific code
@@ -310,13 +308,7 @@ function updateTotal(final, meeting_mark, code_mark) {
     rangeStart.end = rangeEnd.start;
 
     // How many rows were added?
-    var oldLines = rangeStart.end.row - rangeStart.start.row;
-    var newLines = output.split("\n").length;
-    var row = editor.getFirstVisibleRow();
     editor.session.replace(rangeStart, "Total: "+output+"\n\n");
-    editor.scrollToRow(row + (newLines-oldLines));
-
-
 }
 
 //TODO - CSSE1001 specific code
@@ -327,8 +319,9 @@ function updateComments(final) {
         meeting_mark = 10;
     }
 
-    var code_mark = updateGeneral(final, meeting_mark);
-    updateMeeting();
+    var row = editor.getFirstVisibleRow();
+    var jump = updateMeeting();
+    var code_mark = updateGeneral(final, meeting_mark, row, jump);
     updateTotal(final, meeting_mark, code_mark);
 }
 
