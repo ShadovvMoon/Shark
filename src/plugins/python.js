@@ -32,6 +32,7 @@ config    = require('../../config.js');
 path      = require('path');
 util      = require('../code/util.js');
 
+python_process = undefined;
 module.exports = function(server, app, callback) {
 
     // Set up the web socket
@@ -67,7 +68,6 @@ module.exports = function(server, app, callback) {
             p.stderr.on('data', function(message) {
                 ws.send(message);
             });
-
             ws.on('message', function(message) {
                 p.stdin.write(message);
             });
@@ -78,6 +78,13 @@ module.exports = function(server, app, callback) {
                 p.kill();
                 ws.close();
             });
+            p.on('close', function (code, signal) {
+                console.log('python process terminated due to receipt of signal '+signal);
+                if (ws.readyState != 3) {
+                    ws.close();
+                }
+            });
+            python_process = p;
         };
 
         // Search the paths until an executable is found
@@ -98,6 +105,19 @@ module.exports = function(server, app, callback) {
 
 
 	app.route('/python').post(function (req, res, next) {
+
+        // Kill the old python process (which may be using the directory)
+        if (typeof python_process !== 'undefined') {
+            try {
+                python_process.stdin.destroy();
+                python_process.stdout.destroy();
+                python_process.stderr.destroy();
+                python_process.kill();
+                python_process = undefined;
+            } catch (err) {
+                console.err(err);
+            }
+        }
 
         // Remove the temporary directory
         var deleteFolderRecursive = function(path) {
