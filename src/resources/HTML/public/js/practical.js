@@ -90,6 +90,9 @@ function addOutput(data) {
 	needsRedraw = true;
     serverCursor = output.getSession().getSelection().getCursor();
     serverLength += data.length;
+
+    //windows fix
+    serverLength = output.getSession().getValue().length;
 }
 function flushSocket() {
     if (typeof ws !== 'undefined') {
