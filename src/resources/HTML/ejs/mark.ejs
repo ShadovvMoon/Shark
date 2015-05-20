@@ -106,6 +106,12 @@ for (var i = 0; i < global_prac.length; i++) {
                 </td>
                 <%if (!interview) {%>
                     <td align="center" width="110px">
+                        <a href="/?sort=mark_time<%=preurl%>">
+                            <% if (global_query['sort'] == "mark_time") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                            Time
+                        </a>
+                    </td>
+                    <td align="center" width="110px">
                         <a href="/?sort=marks<%=preurl%>">
                             <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                             Raw
@@ -166,6 +172,7 @@ for (var i = 0; i < global_prac.length; i++) {
 		var code = masters ? Math.ceil((mark / 13) * 10) : Math.ceil(mark);
         var tests = scripts[s].testsRun;
         var passed = scripts[s].testsPassed;
+        var time = scripts[s].time;
 
         var tr_class = ""
         if (modified) {
@@ -173,7 +180,7 @@ for (var i = 0; i < global_prac.length; i++) {
             else if (mark <= 8.0) tr_class = "warning";
             else tr_class = "success";
             if (interview) {
-                if (scripts[s].attended) {
+                if (scripts[s].attended == "true") {
                     tr_class = "success";
                 } else {
                     tr_class = "default";
@@ -199,6 +206,9 @@ for (var i = 0; i < global_prac.length; i++) {
                     <%=passed%> / <%=tests%>
                 </td>
         <%if (modified && !interview) {%>
+                <td align="center">
+                    <%=time%>
+                </td>
                 <td align="center">
                     <%=mark%>
                 </td>

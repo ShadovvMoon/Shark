@@ -79,7 +79,11 @@ function getScriptInfo(script, criteria, callback) {
                     if (typeof save_json.criteria === 'undefined') {
                         version = 1;
                     } else {
-                        version = 2;
+                        if (typeof save_json.analytics === 'undefined') {
+                            version = 2;
+                        } else {
+                            version = 3;
+                        }
                     }
                 }
 
@@ -89,14 +93,44 @@ function getScriptInfo(script, criteria, callback) {
                     mark: "",
                     comments: ""
                 };
+                var activity = [];
+                var opened = 0;
                 if (version == 1) {
                     criteria_save = save_json;
-                } else if (version == 2) {
+                } else if (version == 2 || version == 3) {
                     criteria_save = save_json.criteria;
                     meeting_save = save_json.meeting;
+                    if (version == 3) {
+                        activity = save_json.analytics.activity;
+                        opened = save_json.analytics.opened;
+                    }
                 }
 
+                // Calculate the amount of marking time [not interview] (in seconds) spend on this assignment
+                var total_seconds = 0;
+                for (var a = 0; a < activity.length; a++) {
+                    var act = activity[a];
+                    if (act.interview == "false") {
+                        var start = act.start;
+                        var end = act.end;
+                        var seconds = (new Date(end) - new Date(start)) / 1000.0;
+                        total_seconds += seconds;
+                    }
+                }
 
+                var time = "";
+                if (total_seconds > 60) {
+                    var mins = Math.round(total_seconds / 60);
+                    if (mins == 1) {
+                        time = mins + " min";
+                    } else {
+                        time = mins + " mins"
+                    }
+                } else {
+                    time = "-";
+                }
+
+                // Calculate the assignment marks
                 var mark = -1.0;
                 if (typeof save_json !== 'undefined') {
                     mark = criteria_util.calculateMarks(criteria, criteria_save).toPrecision(2);
@@ -111,7 +145,8 @@ function getScriptInfo(script, criteria, callback) {
                     modified: exists,
                     mark: mark,
                     testsRun: total_tests,
-                    testsPassed: total_passed
+                    testsPassed: total_passed,
+                    time: time
                 })
             }
 

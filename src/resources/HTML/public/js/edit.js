@@ -230,6 +230,7 @@ function jumpTo(regex) {
     }
 }
 
+// TODO - duplicate code
 function updateGeneral(final, meeting_mark) {
     var codeMark = updateMarks(criteria);
 
@@ -266,6 +267,7 @@ function updateGeneral(final, meeting_mark) {
     return codeMark;
 }
 
+//TODO - CSSE1001 specific code
 function updateMeeting() {
     var icomm = document.getElementById("interview-comments");
     var strings = chunkString(icomm.value, 78);
@@ -289,6 +291,7 @@ function updateMeeting() {
     editor.scrollToRow(row + (newLines-oldLines));
 }
 
+//TODO - CSSE1001 specific code
 function updateTotal(final, meeting_mark, code_mark) {
     var total_mark = Math.min(meeting_mark, code_mark);
     var output = "";
@@ -316,6 +319,7 @@ function updateTotal(final, meeting_mark, code_mark) {
 
 }
 
+//TODO - CSSE1001 specific code
 function updateComments(final) {
     var imark = document.getElementById("interview-mark").value;
     var meeting_mark = parseInt(imark);
@@ -326,6 +330,46 @@ function updateComments(final) {
     var code_mark = updateGeneral(final, meeting_mark);
     updateMeeting();
     updateTotal(final, meeting_mark, code_mark);
+}
+
+
+// Analytics
+// Activity - http://www.kirupa.com/html5/detecting_if_the_user_is_idle_or_inactive.htm
+var timeoutID;
+var prev_inactivity = new Date();
+function setupActivity() {
+    this.addEventListener("mousemove", resetTimer, false);
+    this.addEventListener("mousedown", resetTimer, false);
+    this.addEventListener("keypress", resetTimer, false);
+    this.addEventListener("DOMMouseScroll", resetTimer, false);
+    this.addEventListener("mousewheel", resetTimer, false);
+    this.addEventListener("touchmove", resetTimer, false);
+    this.addEventListener("MSPointerMove", resetTimer, false);
+
+    startTimer();
+}
+function startTimer() {
+    // wait 10 seconds before calling goInactive
+    timeoutID = window.setTimeout(goInactive, 10000);
+}
+function resetTimer(e) {
+    window.clearTimeout(timeoutID);
+
+    goActive();
+}
+
+function goInactive() {
+    var now = new Date();
+    activity.push({
+        start: prev_inactivity,
+        end: now,
+        interview: interview
+    });
+    prev_inactivity = now;
+}
+
+function goActive() {
+    startTimer();
 }
 
 
@@ -349,6 +393,9 @@ function save() {
     // Save the comment and checkbox values
     var exported = {};
     exportChildren(criteria, exported);
+
+    // Flush analytics
+    goInactive();
 
     $.ajax({
         xhr: function()
@@ -374,6 +421,10 @@ function save() {
                     mark: imark,
                     comments: icomm
                 },
+                analytics: {
+                    activity: activity,
+                    opened: opened
+                },
                 criteria: exported
             }
         },
@@ -390,10 +441,13 @@ function save() {
 
 $(document).ready(function() {
 
+    // Analytics
+    setupActivity();
+    opened++;
+
     // Interview
     var imark = document.getElementById("interview-mark");
     var icomm = document.getElementById("interview-comments");
-
     function updateInterviewed(start) {
         var interview = $($('#interviewed')).prop('checked');
         if (!interview) {

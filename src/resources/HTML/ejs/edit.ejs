@@ -54,6 +54,7 @@ var interview = (typeof global_query['interview'] !== 'undefined');
 var script_source = global_script['source'];
 var json = JSON.stringify(global_criteria);
 
+//TODO - duplicate code
 // Calculate parameters [TODO: functionify this to fix duplication with scripts.js]
 // What is the name of this student?
 var name_regex = /Student Name:(.*)/
@@ -69,11 +70,17 @@ if (typeof global_savefile !== 'undefined') {
     if (typeof global_savefile.criteria === 'undefined') {
         version = 1;
     } else {
-        version = 2;
+        if (typeof global_savefile.analytics === 'undefined') {
+            version = 2;
+        } else {
+            version = 3;
+        }
     }
 }
 
 var criteria_save = undefined;
+var activity = [];
+var opened = 0;
 var meeting_save  = {
     attended: false,
     mark: "",
@@ -81,10 +88,16 @@ var meeting_save  = {
 };
 if (version == 1) {
     criteria_save = global_savefile;
-} else if (version == 2) {
+} else if (version == 2 || version == 3) {
     criteria_save = global_savefile.criteria;
     meeting_save = global_savefile.meeting;
+    if (version == 3) {
+        activity = global_savefile.analytics.activity;
+        opened = global_savefile.analytics.opened;
+    }
 }
+activity = JSON.stringify(activity);
+opened = JSON.stringify(opened);
 
 function interview_header() {
     %>
@@ -235,6 +248,8 @@ generateChildren(global_criteria, criteria_save, 0);
 <script type="text/javascript">
 var interview = <%- interview %>;
 var criteria = <%- json %>;
+var activity = <%- activity %>;
+var opened = <%- opened %>;
 var script = "<%=global_query.script%>";
 var prac = "<%=global_query.prac%>";
 </script>
