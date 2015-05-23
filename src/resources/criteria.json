@@ -251,7 +251,7 @@
                             "# Add your code here",
                             "\"\"\""
                         ],
-                        "true": "Docstrings need to be included immediately below the function or class definition."
+                        "false": "Docstrings need to be included immediately below the function or class definition."
                     },
                     {
                         "id": "code_docstrings_bad_description",
