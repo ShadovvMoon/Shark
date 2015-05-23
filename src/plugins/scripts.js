@@ -57,14 +57,10 @@ function getScriptInfo(script, criteria, callback) {
         var total_passed = 0;
         if (test_array) {
             var tests = test_array[1].trim();
-            var matches = tests.match(RegExp(".*?: (\\d+?)\/(\\d+)", "g"));
+            var matches = tests.match(/Passed ([0-9]+)\/([0-9]+) tests/);
             if (matches) {
-                for (var i = 0; i < matches.length; i++) {
-                    var match = matches[i];
-                    var split = RegExp(".*?: (\\d+?)\/(\\d+)").exec(match);
-                    total_passed += parseInt(split[1]);
-                    total_tests += parseInt(split[2]);
-                }
+                total_passed = parseInt(matches[1], 10);             
+				total_tests = parseInt(matches[2], 10);
             }
         }
 
