@@ -98,7 +98,7 @@
                     {
                         "id": "code_temperatureData_no_dictionary",
                         "criteria": "<indent>Does not use dictionary",
-                        "weight": 0.25,
+                        "weight": -0.5,
                         "jump": [
                             "class TemperatureData",
                             "\\{"
@@ -129,7 +129,7 @@
                     {
                         "id": "code_inheritance_selectionFrame",
                         "criteria": "SelectionFrame inherits from Frame",
-                        "weight": 0.5,
+                        "weight": 0.25,
                         "jump": [
                             "class SelectionFrame"
                         ],
@@ -141,7 +141,7 @@
                     {
                         "id": "code_inheritance_dataFrame",
                         "criteria": "DataFrame inherits from Frame",
-                        "weight": 0,
+                        "weight": 0.25,
                         "jump": [
                             "class DataFrame"
                         ],
