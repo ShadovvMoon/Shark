@@ -487,7 +487,7 @@
                         "criteria": "<indent>Clicking plot with no stations throws error",
                         "weight": -0.25,
                         "requires": [
-                            "gui.dataFrame.exists"
+                            "gui_dataFrame_exists"
                         ],
                         "true": "Clicking the plot when no stations have been loaded or are visible should not throw an error."
                     },
@@ -496,7 +496,7 @@
                         "criteria": "<indent>Clicking and dragging off plotter throws error",
                         "weight": -0.25,
                         "requires_": [
-                            "gui.dataFrame.exists"
+                            "gui_dataFrame_exists"
                         ],
                         "true": "Clicking and dragging off the plotter should not result in an error being printed to the python console."
                     },
