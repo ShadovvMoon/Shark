@@ -1,4 +1,9 @@
 <html>
+<%
+    var interview = (typeof global_query['interview'] !== 'undefined');
+    var preurl = interview ? "&interview" : "";
+    var presort = (typeof global_query['sort'] !== 'undefined') ? "&sort=" + global_query['sort'] : "";
+%>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +25,7 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -28,13 +33,19 @@
             </button>
             <a class="navbar-brand" href="#"><img class="main-icon" src="images/shark-icon.png"/><span class="main-brand">Shark</span></a>
         </div>
-        <ul class="nav navbar-nav navbar-right">
-        	<li><a href="#" data-toggle="modal" data-target="#graph"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Graph</a></li>
-            <li><a href="export"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Export</a></li>
-        </ul>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <%if (!interview) {%>
+                <li><a href="/?interview<%=presort%>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Interview</a></li>
+                <li><a href="#" data-toggle="modal" data-target="#graph"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Graph</a></li>
+                <li><a href="export"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Export</a></li>
+                <%} else { %>
+                <li><a href="/?<%=presort%>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Mark</a></li>
+                <%}%>
+            </ul>
+        </div>
     </div>
 </nav>
-
 
 <div class="modal fade" id="graph">
   <div class="modal-dialog">
@@ -70,35 +81,49 @@ for (var i = 0; i < global_prac.length; i++) {
             <thead>
             <tr>
                 <td width="110px">
-                    <a href="/?sort=number">
+                    <a href="/?sort=number<%=preurl%>">
                         <% if (global_query['sort'] == "number") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                         Number
                     </a>
                 </td>
                 <td>
-                    <a href="/?sort=name">
+                    <a href="/?sort=name<%=preurl%>">
                         <% if (global_query['sort'] == "name") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                         Name
                     </a>
                 </td>
-                <td width="110px">
-                    <a href="/?sort=status">
+                <td align="center" width="110px">
+                    <a href="/?sort=status<%=preurl%>">
                         <% if (global_query['sort'] == "status") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
                         Type
                     </a>
                 </td>
-                <td width="110px">
-                    <a href="/?sort=marks">
-                        <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
-                        Raw
+                <td align="center" width="110px">
+                    <a href="/?sort=tests<%=preurl%>">
+                        <% if (global_query['sort'] == "tests") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                        Tests
                     </a>
                 </td>
-                <td width="110px">
-                    <a href="/?sort=marks">
-                        <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
-                        Result
-                    </a>
-                </td>
+                <%if (!interview) {%>
+                    <td align="center" width="110px">
+                        <a href="/?sort=mark_time<%=preurl%>">
+                            <% if (global_query['sort'] == "mark_time") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                            Time
+                        </a>
+                    </td>
+                    <td align="center" width="110px">
+                        <a href="/?sort=marks<%=preurl%>">
+                            <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                            Raw
+                        </a>
+                    </td>
+                    <td align="center" width="110px">
+                        <a href="/?sort=marks<%=preurl%>">
+                            <% if (global_query['sort'] == "marks") {%><span class="glyphicon glyphicon-sort-by-alphabet"></span><%}%>
+                            Result
+                        </a>
+                    </td>
+                <%}%>
             </tr>
             </thead>
 <%
@@ -111,6 +136,11 @@ for (var i = 0; i < global_prac.length; i++) {
         case "marks":
             scripts.sort(function(a, b){
                 return a.mark - b.mark;
+            })
+            break;
+        case "mark_time":
+            scripts.sort(function(a, b){
+                return a.time.localeCompare(b.time);
             })
             break;
         case "number":
@@ -128,6 +158,11 @@ for (var i = 0; i < global_prac.length; i++) {
                 return a.masters - b.masters;
             })
             break;
+        case "tests":
+            scripts.sort(function(a, b){
+                return a.testsPassed - b.testsPassed;
+            })
+            break;
         default:
             break;
     }
@@ -140,33 +175,49 @@ for (var i = 0; i < global_prac.length; i++) {
         var modified = scripts[s].modified;
         var mark = scripts[s].mark;
 		var code = masters ? Math.ceil((mark / 13) * 10) : Math.ceil(mark);
-		
+        var tests = scripts[s].testsRun;
+        var passed = scripts[s].testsPassed;
+        var time = scripts[s].time;
+
         var tr_class = ""
         if (modified) {
             if (mark <= 4.0) tr_class = "danger";
             else if (mark <= 8.0) tr_class = "warning";
             else tr_class = "success";
+            if (interview) {
+                if (scripts[s].attended == "true") {
+                    tr_class = "success";
+                } else {
+                    tr_class = "default";
+                }
+            }
         }
         %>
             <tr class="<%=tr_class%>">
                 <td>
-                    <a href="/edit?prac=<%=prac_name%>&script=<%=script_name%>"><%= script_name %></a>
+                    <a href="/edit?prac=<%=prac_name%>&script=<%=script_name%><%=preurl%>"><%= script_name %></a>
                 </td>
                 <td>
                     <%=student_name%>
                 </td>
-                <td>
+                <td align="center">
                 	<%if (masters) {%>
                         Masters
                     <%} else {%>
                         Normal
                     <%}%>
                 </td>
-        <%if (modified) {%>
-                <td>
+                <td align="center">
+                    <%=passed%> / <%=tests%>
+                </td>
+        <%if (modified && !interview) {%>
+                <td align="center">
+                    <%=time%>
+                </td>
+                <td align="center">
                     <%=mark%>
                 </td>
-                <td>
+                <td align="center">
                     <%=code%>
                 </td>
         <%}%>

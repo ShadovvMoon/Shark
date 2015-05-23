@@ -60,6 +60,8 @@ textarea {
     resize:vertical;
     width:100%;
     border: none;
+}
+.clear {
     background: none;
 }
 
@@ -104,9 +106,26 @@ textarea {
 }
 
 .root_head {
-    background-color: #c0d5e1;
+    background-color: #d0e5f1;
     font-size: 13px;
     font-family: Avenir Next;
+}
+
+.root_header {
+    background-color: #d0e5f1;
+    font-size: 13px;
+    font-family: Avenir Next;
+    padding: 30px 20px 20px;
+    margin-bottom: 5px;
+}
+
+.root_header>h3 {
+    margin-top: 0px;
+}
+
+.short {
+    width: 120px !important;
+    display: inline-block;
 }
 
 .row_cat0 {

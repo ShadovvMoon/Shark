@@ -1,4 +1,7 @@
 <html>
+<%
+var interview = (typeof global_query['interview'] !== 'undefined');
+%>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6,17 +9,17 @@
     <meta name="author" content="">
     <title>Editing Script</title>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
     <link rel="stylesheet" href="css/mark.css">
 </head>
 <body>
-
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -25,14 +28,98 @@
             <a class="navbar-brand"><img class="main-icon" src="images/shark-icon.png"/><span class="main-brand">Shark</span></a>
         </div>
     </div>
-    <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" onClick="save()" id="save"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save</a></li>
-    </ul>
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onClick="run()"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Run</a></li>
+            <li><a href="#" onClick="save()" id="save"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save</a></li>
+        </ul>
+    </div>
 </nav>
 
+<div class="modal fade" id="graph">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="panel panel-default prac-output">
+                    <div class="panel-body prac-output-body">
+                        <div id="output" spellcheck='false' ></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<%
+var script_source = global_script['source'];
+var json = JSON.stringify(global_criteria);
+
+//TODO - duplicate code
+// Calculate parameters [TODO: functionify this to fix duplication with scripts.js]
+// What is the name of this student?
+var name_regex = /Student Name:(.*)/
+var name_array = name_regex.exec(script_source);
+var masters = script_source.indexOf("##### CSSE7030 #####") > -1;
+var student = "";
+if (name_array) {
+    student = name_array[1].trim();
+}
+
+var version = 0;
+if (typeof global_savefile !== 'undefined') {
+    if (typeof global_savefile.criteria === 'undefined') {
+        version = 1;
+    } else {
+        if (typeof global_savefile.analytics === 'undefined') {
+            version = 2;
+        } else {
+            version = 3;
+        }
+    }
+}
+
+var criteria_save = undefined;
+var activity = [];
+var opened = 0;
+var meeting_save  = {
+    attended: false,
+    mark: "",
+    comments: ""
+};
+if (version == 1) {
+    criteria_save = global_savefile;
+} else if (version == 2 || version == 3) {
+    criteria_save = global_savefile.criteria;
+    meeting_save = global_savefile.meeting;
+    if (version == 3) {
+        activity = global_savefile.analytics.activity;
+        opened = global_savefile.analytics.opened;
+    }
+}
+activity = JSON.stringify(activity);
+opened = JSON.stringify(opened);
+
+function interview_header() {
+    %>
+        <div class="root_header">
+            <div class="pull-right">
+                <input name="interviewed" <%if (meeting_save.attended == "true") {%>checked<%}%> id="interviewed" style="float:right;" type="checkbox" data-toggle="toggle" data-offstyle="danger" data-onstyle="default" data-on="Interviewed" data-off="Not Interviewed">
+                <input name="interview-mark" id="interview-mark" type="text" class="short form-control" placeholder="Interview Mark" value="<%=meeting_save.mark%>">
+            </div>
+            <h3><%=student%></h3>
+            <textarea name="interview-comments" id="interview-comments"><%=meeting_save.comments%></textarea>
+        </div>
+    <%
+}
+%>
 
 <div class="row">
-    <div class="checkbox-view col-md-6">
+    <% if (interview) { %>
+        <div class="hidden">
+    <%} else {%>
+        <div class="checkbox-view col-md-6">
+            <%interview_header();%>
+    <%}%>
         <table class="table script_table">
             <thead class="root_head">
             <tr>
@@ -46,9 +133,6 @@
 
 
 <%
-var script_source = global_script['source'];
-var json = JSON.stringify(global_criteria);
-
 function childIdentifier(child) {
     var identifier = child['id'];
     if (typeof identifier === 'undefined') {
@@ -70,16 +154,27 @@ function generateChildren(children, savefile, level) {
         var name        = child['criteria'];
 
         // Sanitise
-        name = name.replace(/<indent>/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+        var margin = 10;
+        var matches = name.match(RegExp("<indent>", "g"));
+        if (matches != null) {
+            margin += 20 * matches.length;
+        }
+        name = name.replace(/<indent>/g, '');
 
         var weight      = child['weight'];
         var subchildren = child['children'];
+        var jump        = child['jump'];
         var unticked    = child['false'] || "";
         var masters     = child['masters'] || false;
         var marks = 0.0;
 
         if (!script_masters && masters) {
             continue;
+        }
+
+        // Convert the jump into a usable form
+        if (typeof jump !== 'undefined') {
+            jump = JSON.stringify(jump);
         }
 
         // Does this child rely on others being ticked?
@@ -110,13 +205,19 @@ function generateChildren(children, savefile, level) {
                     }
                     %>
                 </td>
-                <td class="cell_label"><%-name%></td>
+                <%if (typeof jump !== 'undefined') {%>
+                <td class="cell_label" style="padding-left:<%=margin%>"><a href="#" onClick='jumpTo(<%-jump%>)'><%-name%></a></td>
+                <%} else {%>
+                <td class="cell_label" style="padding-left:<%=margin%>"><%-name%></td>
+                <%}%>
                 <td><%=weight%></td>
-                <td id="<%=identifier%>_marks"><%=marks%></td>
+                <td>
+                    <textarea class="clear" readonly  style="resize: none;width:50px;text-align:center" id="<%=identifier%>_marks" rows="1"><%=marks%></textarea>
+                </td>
                 <td>
                     <%
                         if (typeof subchildren === 'undefined') {
-                            %><textarea id="<%=identifier%>_textarea" rows="1"><%=unticked%></textarea><%
+                            %><textarea class="clear" id="<%=identifier%>_textarea" rows="1"><%=unticked%></textarea><%
                         }
                      %>
                 </td>
@@ -127,20 +228,28 @@ function generateChildren(children, savefile, level) {
         generateChildren(subchildren, savefile, level+1);
     }
 }
-generateChildren(global_criteria, global_savefile, 0);
+generateChildren(global_criteria, criteria_save, 0);
 %>
 
         </table>
 
     </div>
+    <% if (interview) { %>
+    <div class="col-md-12">
+        <%interview_header();%>
+    <%} else {%>
     <div class="col-md-6">
+   <%}%>
         <div id="editor"><%=script_source%>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
+var interview = <%- interview %>;
 var criteria = <%- json %>;
+var activity = <%- activity %>;
+var opened = <%- opened %>;
 var script = "<%=global_query.script%>";
 var prac = "<%=global_query.prac%>";
 </script>
@@ -150,12 +259,28 @@ var prac = "<%=global_query.prac%>";
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/xcode");
     editor.getSession().setMode("ace/mode/python");
+
+    // Extra code for the python execution engine
+    var output = ace.edit("output");
+    output.setTheme("ace/theme/xcode");
+    output.getSession().setMode("ace/mode/python");
+    output.setShowPrintMargin(false);
+    output.setBehavioursEnabled(false);
+    //output.setReadOnly(true);
+    //output.setHighlightActiveLine(false);
+    output.setShowFoldWidgets(false);
+    //output.setShowInvisibles(true);
+    output.setHighlightGutterLine(false);
+    output.getSession().setUseWrapMode(true)
+    output.renderer.setShowGutter(false);
 </script>
 
 <!-- JavaScript -->
 <script src="js/jquery-1.10.2.js"></script>
 <script src="js/bootstrap.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
 <script src="js/edit.js"></script>
+<script src="js/practical.js"></script>
 
 <!-- Resizing TextAreas -->
 <script type="text/javascript">

@@ -1,31 +1,31 @@
 {
-    "name": "Shark",
-    "version": "1.0.0",
-    "description": "An interactive tool to help mark assignments for a course I tutor at the University of Queensland",
-    "dependencies": {
-        "express": "*",
-        "bcrypt-nodejs": "*",
-        "body-parser": "*",
-        "ejs": "*",
-        "express-session": "*",
-        "jszip": "*",
-        "method-override": "*",
-        "node-zip": "*",
-        "passport": "*",
-        "passport-local": "*",
-        "passport-strategy": "*",
-        "python-shell": "*",
-        "unzip": "*",
-        "openurl": "*",
-        "ws": "*",
-         "multer": "~0.1.6"
-    },
-    "author": {
-        "name": "Samuel Colbran",
-        "email": "contact@samuco.net"
-    },
-    "engines": {
-        "node": "0.10.x",
-        "npm": "1.4.x"
-    }
+  "name": "Shark",
+  "version": "1.0.0",
+  "description": "An interactive tool to help mark assignments for a course I tutor at the University of Queensland",
+  "dependencies": {
+    "bcrypt-nodejs": "*",
+    "body-parser": "*",
+    "ejs": "*",
+    "express": "*",
+    "express-session": "*",
+    "jszip": "*",
+    "method-override": "*",
+    "multer": "~0.1.6",
+    "ncp": "^2.0.0",
+    "node-zip": "*",
+    "openurl": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "passport-strategy": "*",
+    "unzip": "*",
+    "ws": "*"
+  },
+  "author": {
+    "name": "Samuel Colbran",
+    "email": "contact@samuco.net"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  }
 }
